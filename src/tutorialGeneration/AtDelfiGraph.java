@@ -24,6 +24,8 @@ import org.graphstream.ui.*;
 import org.graphstream.ui.layout.Layout;
 import org.graphstream.ui.view.Viewer;
 import org.json.simple.parser.ParseException;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 public class AtDelfiGraph {
 	/**
@@ -605,7 +607,11 @@ public class AtDelfiGraph {
 			beginLabel += sprite.getName() + " ";
 		}
 		beginLabel += mech.getConditions().get(0).getName() + " ";
-		c.addAttribute("ui.label", beginLabel + mech.getReadibleAction() + " : " + mech.getFrames().get(agent)[level]);
+		if (mech.getFrames().get(agent) == null){
+			c.addAttribute("ui.label", beginLabel + mech.getReadibleAction());
+		} else {
+			c.addAttribute("ui.label", beginLabel + mech.getReadibleAction() + " : " + mech.getFrames().get(agent)[level]);
+		}
 //		c.addAttribute("ui.label", beginLabel + mech.getReadibleAction());
 		c.addAttribute("ui.style", details);
 		return c;
@@ -773,6 +779,24 @@ public class AtDelfiGraph {
 				System.out.println(mech);
 			}
 		}
+	}
+	
+	public JSONArray getJSONMechanics() {
+		JSONArray mechJSONArray = new JSONArray();
+		for (Mechanic mech : mechanics) {
+			JSONObject mechJSON = new JSONObject();
+			List<Node> sprites = mech.getSprites();
+			
+			
+			mechJSON.put("sprite1", sprites.get(0).getName());
+			if(sprites.size() > 1) {
+				mechJSON.put("sprite2", sprites.get(1).getName());
+			}
+			mechJSON.put("action", mech.getReadibleAction());
+			mechJSON.put("condition", mech.getConditions().get(0).getType());
+			mechJSONArray.add(mechJSON);
+		}
+		return mechJSONArray;
 	}
 	
 	public List<Mechanic> getMechanics() {

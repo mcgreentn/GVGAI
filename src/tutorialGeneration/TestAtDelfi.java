@@ -1,8 +1,11 @@
 package tutorialGeneration;
 
+import java.io.FileWriter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+
+import org.json.simple.JSONArray;
 
 import core.game.Game;
 import core.game.GameDescription;
@@ -43,7 +46,7 @@ public class TestAtDelfi {
     String gameFile, levelFile, recordTutorialFile;
 
     int levelIdx = 2; // level names from 0 to 4 (game_lvlN.txt).
-    int gameIdx = 30;
+    int gameIdx = 47;
 
     public TestAtDelfi() {
         // settings        
@@ -59,7 +62,6 @@ public class TestAtDelfi {
 		
 //		tester.testAllGames(seed);
 		tester.testOneGame(seed, tester.gameIdx);
-		
 //		tester.testOneGame_HPC(seed, Integer.parseInt(args[0]));
 //		tester.testFirstGames(seed);
 //		tester.testSecondGames(seed);
@@ -149,8 +151,15 @@ public class TestAtDelfi {
 
 		AtDelfi atdelfi = new AtDelfi(this.gameFile, this.levelFile, this.getGame(this.gameIdx)[1], seed, this.verbose);
 //		atdelfi.testPlayGames();
-		atdelfi.buildGraph("human", levelIdx);	
-		
+		atdelfi.buildGraph("human", levelIdx);
+		JSONArray mechJSON = atdelfi.getGameGraph().getJSONMechanics();
+		try (FileWriter file = new FileWriter("mechanics.json")) {
+			file.write(mechJSON.toJSONString());
+            file.close();
+		}
+		catch(Exception e) {
+			System.out.println(e);
+		}
 //		CriticalPather criticalPather = new GreedyPather(atdelfi.getGameGraph());
 //		
 //		List<Mechanic> critPath = atdelfi.criticalPath(criticalPather, "adrienctx.Agent", true);
@@ -158,6 +167,7 @@ public class TestAtDelfi {
 //		for (Mechanic m : critPath) {
 //			System.out.println(m.getSprites().get(0).getName() + " " + m.getReadibleAction() + " " + m.getActions().get(0).getName());
 //		}
+		
 	}
 	
 	public void testOneGame_HPC(int seed, int id) {
