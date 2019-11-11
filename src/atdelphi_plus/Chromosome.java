@@ -12,9 +12,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Random;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -24,49 +27,49 @@ import tracks.ArcadeMachine;
 import tracks.levelGeneration.LevelGenMachine;
 
 public class Chromosome implements Comparable<Chromosome>{
-	
+
 	/********************
 	 * STATIC VARIABLES *
 	 ********************/
-	
+
 	//custom level generator directly based off randomLevelGenerator.java 
 	//  differences is the constant size of the level
-		static private String chromoLevelGenerator = "atdelphi_plus.ChromosomeLevelGenerator";
-		
+	static private String chromoLevelGenerator = "atdelphi_plus.ChromosomeLevelGenerator";
+
 	//open the json file that the run just exported the interactions to
-		static private String outputInteractionJSON = "src/atdelphi_plus/generatedLevels/interactions.json";
-	
+	static private String outputInteractionJSON = "src/atdelphi_plus/generatedLevels/interactions_%.json";
+
 
 	//the default level generator saves the text output to a file - so just write it and read it back in
-		static private String placeholderLoc = "src/atdelphi_plus/generatedLevels/placeholder.txt";
-	
-	//taken directly from Chromosome.java [MarioAI]
-		static protected Random _rnd;
-		//protected int _appendingSize;		//size is dependent on the game itself
-	
-	//extended variables
-		static protected String _gameName;
-		static protected String _gamePath;
-		static protected String[] _allChar;
-		static protected ArrayList<String[]> _rules;
+	static private String placeholderLoc = "src/atdelphi_plus/generatedLevels/placeholder.txt";
 
-	
+	//taken directly from Chromosome.java [MarioAI]
+	static protected Random _rnd;
+	//protected int _appendingSize;		//size is dependent on the game itself
+
+	//extended variables
+	static protected String _gameName;
+	static protected String _gamePath;
+	static protected String[] _allChar;
+	static protected ArrayList<String[]> _rules;
+
+
 	/********************
 	 * OBJECT VARIABLES *
 	 ********************/
-		
-	
+
+
 	//taken directly from Chromosome.java [MarioAI]		
-		protected double _constraints;	
-		protected double _fitness;
-		protected int[] _dimensions;		//binary vector for the interactions that occured for this chromosome
-		private int _age;					//age of the current chromosome
+	protected double _constraints;	
+	protected double _fitness;
+	protected int[] _dimensions;		//binary vector for the interactions that occured for this chromosome
+	private int _age;					//age of the current chromosome
 
 	//extended variables
-		protected String _textLevel;
-		protected boolean _hasBorder;
+	protected String _textLevel;
+	protected boolean _hasBorder;
 
-	
+
 	//sets the static variables for the Chromsome class - shared between all chromosomes
 	public static void SetStaticVar(Random seed, String gn, String gp, String genFolder, ArrayList<String[]> r) {
 		Chromosome._rnd = seed;
@@ -74,20 +77,18 @@ public class Chromosome implements Comparable<Chromosome>{
 		Chromosome._gamePath = gp;
 		Chromosome._rules = r;
 		Chromosome._allChar = getMapChar();
-		if(genFolder != null) {
-			Chromosome.outputInteractionJSON = genFolder + "interactions_%.json";
-		}
-			
+		Chromosome.outputInteractionJSON = genFolder + "interactions_%.json";
+
 	}
-	
-	
+
+
 	//constructor for random initialization
 	public Chromosome() {
 		this._constraints = 0;
 		this._fitness = 0;
 		this._dimensions = null;
 		this._age = 0;
-		
+
 		this._textLevel = "";
 		this._hasBorder = false;
 	}
@@ -107,7 +108,7 @@ public class Chromosome implements Comparable<Chromosome>{
 	//random level initialization function using LevelGenMachine.java and ChromosomeLevelGenerator (AtDelphi+ exclusive class)
 	public void randomInit(String placeholder) {
 		this._textLevel = "";
-		
+
 		//default to the class variable
 		if(placeholder == null) {
 			placeholder = Chromosome.placeholderLoc;
@@ -138,23 +139,23 @@ public class Chromosome implements Comparable<Chromosome>{
 		}
 		this._textLevel.trim();
 	}
-	
+
 	//overwrites the results from an already calculated chromosome of a child process
 	public void saveResults(String fileContents) {
 		String[] fileStuff = fileContents.split("\n");
-		
+
 		this._age = Integer.parseInt(fileStuff[0]);
 		this._hasBorder = (fileStuff[1] == "0" ? false : true);
 		this._constraints = Double.parseDouble(fileStuff[2]);
 		this._fitness = Double.parseDouble(fileStuff[3]);
-			String[] d = fileStuff[4].split("");
-			this._dimensions = new int[d.length];
-			for(int i=0;i<d.length;i++) {
-				this._dimensions[i] = Integer.parseInt(d[i]);
-			}
+		String[] d = fileStuff[4].split("");
+		this._dimensions = new int[d.length];
+		for(int i=0;i<d.length;i++) {
+			this._dimensions[i] = Integer.parseInt(d[i]);
+		}
 	}
-	
-	
+
+
 
 	//returns the full level
 	private String fullLevel(String ph) {
@@ -235,14 +236,17 @@ public class Chromosome implements Comparable<Chromosome>{
 		if(outFile == null)
 			outFile = Chromosome.placeholderLoc;
 		copyLevelToFile(outFile);
-		//System.out.println("Playing game...");
-		String json = Chromosome.outputInteractionJSON.replaceFirst("%", (""+id));
-		double[] results = ArcadeMachine.runOneGame(Chromosome._gamePath, outFile, false, aiAgent, null, Chromosome._rnd.nextInt(), 0, json);
+		System.out.println("Playing game...");
+		String col_json = Chromosome.outputInteractionJSON.replaceFirst("%", ("_col_"+id));
+		String play_json = Chromosome.outputInteractionJSON.replaceFirst("%", ("_key_"+id));
+
+
+		double[] results = ArcadeMachine.runOneGame(Chromosome._gamePath, outFile, false, aiAgent, null, Chromosome._rnd.nextInt(), 0, new String[]{col_json, play_json});
 		/*
 		for(double d : results) {
 			System.out.println(d);
 		}
-		*/
+		 */
 
 		this._age++;					//increment the age (the chromosome is older now that it has been run)
 		setConstraints(results); 	//set the constraints (win or lose)
@@ -263,7 +267,7 @@ public class Chromosome implements Comparable<Chromosome>{
 
 		//constraints = (win / timeToWin) + ((1-win) * 0.25 / timeToSurvive)
 		//this._constraints = (results[0] / results[2]) + (((1-results[0]) * 0.25) / results[2]);
-		
+
 		//constraints = (win / (timeToWin dist from ideal time)) + ((1-win) * 0.25 / (timeToSurvive dist from ideal time))
 		int idealTime = 50;
 		this._constraints = (results[0] / (Math.abs(idealTime - results[2])+1)) + (((1-results[0]) * 0.25) / (Math.abs(idealTime - results[2])+1));
@@ -321,68 +325,140 @@ public class Chromosome implements Comparable<Chromosome>{
 	//DEMO: use Zelda rules (player killed enemy? [0-2] player picked up key? [3])
 	private void calculateDimensions(int id) {
 		//System.out.println("calculating dimensions...");
-		
+
 		//create a new dimension set based on the size of _rules and set all values to 0
 		this._dimensions = new int[_rules.size()];
 		for(int d=0;d<this._dimensions.length;d++) {
 			this._dimensions[d] = 0;
 		}
+
+
+		try {
+			//setup the files
+			String col_json = Chromosome.outputInteractionJSON.replaceFirst("%", ("_col_"+id));
+
+			///////    COLLISION INTERACTIONS   ///////
+			
+			BufferedReader colInterRead = new BufferedReader(new FileReader(col_json));
+			//parse each line (assuming 1 object per line)
+			String line = colInterRead.readLine();
+			while(line != null) {
+				//System.out.println(line);
+				JSONObject obj = (JSONObject)new JSONParser().parse(line);
+				String action = obj.get("interaction").toString();
+				String sprite2 = obj.get("sprite2").toString();
+				String sprite1 = obj.get("sprite1").toString();
+
+				String[] tryKey = {action, sprite2, sprite1, "Collides"};
+
+				//System.out.println(Arrays.deepToString(tryKey));
+
+				//confirm the interaction in the dimension space
+				int ruleIndex = hasRule(tryKey);
+				if(ruleIndex >= 0) {
+					_dimensions[ruleIndex] = 1;
+				}
+				line = colInterRead.readLine();
+			}
+			colInterRead.close();
+
+
+		}catch(FileNotFoundException e) {
+			System.out.println("Unable to open file '" + Chromosome.outputInteractionJSON.replaceFirst("%", (""+id)) + "'");                
+		}
+		catch(IOException e) {
+			e.printStackTrace();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 		
 		
 		try {
-	        //read the file
-			String json = Chromosome.outputInteractionJSON.replaceFirst("%", (""+id));
-			BufferedReader interRead = new BufferedReader(new FileReader(json));
+			//setup the files
+			String play_json = Chromosome.outputInteractionJSON.replaceFirst("%", ("_key_"+id));
 
+			
+			///////    PLAYER INTERACTIONS   ///////
+			
+			 //read the file
+			String contents = new String(Files.readAllBytes(Paths.get(play_json)));
+			JSONArray arr = (JSONArray) new JSONParser().parse(contents);
+			
+			//iterate through the array items (if they exist)
+			for(int i=0;i<arr.size();i++) {
+				JSONObject obj = (JSONObject)arr.get(i);
+				String action = obj.get("action").toString();
+				String sprite1 = obj.get("sprite1").toString();
+
+				String[] tryKey = {action, "", sprite1, "Player Input"};
+
+				//System.out.println(Arrays.deepToString(tryKey));
+
+				//confirm the interaction in the dimension space
+				int ruleIndex = hasRule(tryKey);
+				if(ruleIndex >= 0) {
+					_dimensions[ruleIndex] = 1;
+				}
+			}
+			
+			
+			/*
 			//parse each line (assuming 1 object per line)
-			String line = interRead.readLine();
-	        while(line != null) {
-	        	//System.out.println(line);
-	        	JSONObject obj = (JSONObject)new JSONParser().parse(line);
-	        	String action = obj.get("interaction").toString();
-	        	String sprite2 = obj.get("sprite2").toString();
-	        	String sprite1 = obj.get("sprite1").toString();
-	        	
-	        	String[] tryKey = {action, sprite2, sprite1};
-	        	
-	        	//System.out.println(Arrays.deepToString(tryKey));
-	        	
-	        	//confirm the interaction in the dimension space
-	        	int ruleIndex = hasRule(tryKey);
-	        	if(ruleIndex >= 0) {
-	        		_dimensions[ruleIndex] = 1;
-	        	}
-	        	line = interRead.readLine();
-	        }
-	        interRead.close();
+			String line2 = playInterRead.readLine();
+			while(line2 != null) {
+				//System.out.println(line2);
+				JSONObject obj = (JSONObject)new JSONParser().parse(line2);
+				String action = obj.get("action").toString();
+				String sprite1 = obj.get("sprite1").toString();
+
+				String[] tryKey = {action, "", sprite1, "Player Input"};
+
+				//System.out.println(Arrays.deepToString(tryKey));
+
+				//confirm the interaction in the dimension space
+				int ruleIndex = hasRule(tryKey);
+				if(ruleIndex >= 0) {
+					_dimensions[ruleIndex] = 1;
+				}
+				line2 = playInterRead.readLine();
+			}
+			playInterRead.close();
+			*/
+			
+			
 		}catch(FileNotFoundException e) {
-	        System.out.println("Unable to open file '" + Chromosome.outputInteractionJSON.replaceFirst("%", (""+id)) + "'");                
-	    }
-	    catch(IOException e) {
-	        e.printStackTrace();
-	    } catch (ParseException e) {
+			System.out.println("Unable to open file '" + Chromosome.outputInteractionJSON.replaceFirst("%", ("_key_"+id)));                
+		}
+		catch(IOException e) {
+			e.printStackTrace();
+		} catch (ParseException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 	//checks if a rule was enacted during the agent's run (parse through the JSON file)
 	private int hasRule(String[] interaction) {
 		//iterates through the whole set to see if the arrays match
 		for(int r=0;r<_rules.size();r++) {
 			String[] rule = _rules.get(r);
+
+			//if not even the same length then skip
+			if(rule.length != interaction.length)
+				continue;
+
 			boolean matchRule = true;
-			for(int i=0;i<rule.length;i++) {
+			for(int i=0;i<interaction.length;i++) {
 				if(!rule[i].equals(interaction[i]))	//if a mismatch - then definitely not the same rule
 					matchRule = false;
 			}
-			
+
 			if(matchRule)
 				return r;
 		}
 		return -1;
 	}
-	
+
 	//mutates a random tile (within the border if applicable) based on a "coin flip" (given probability between 0-1)
 	public void mutate(double coinFlip) {
 		double f = 0.0;
@@ -453,9 +529,9 @@ public class Chromosome implements Comparable<Chromosome>{
 		return;
 	}
 
-	
-	
-	
+
+
+
 
 	/*
 	 * Copies the textLevel to the placeholder file
@@ -464,7 +540,7 @@ public class Chromosome implements Comparable<Chromosome>{
 	public void copyLevelToFile(String file) throws IOException {
 		if(file == null)
 			file = Chromosome.placeholderLoc;
-		
+
 		BufferedWriter writer = new BufferedWriter(new FileWriter(file));
 		writer.write(this._textLevel);
 		//writer.write(this._fullTextLevel); 
@@ -491,7 +567,7 @@ public class Chromosome implements Comparable<Chromosome>{
 		output += (this.toString());
 		return output;
 	}
-	
+
 	//creates an output file format for the level (for use with parallelization)
 	public String toOutputFile() {
 		String output = "";
@@ -502,7 +578,7 @@ public class Chromosome implements Comparable<Chromosome>{
 		for(int i=0;i<this._dimensions.length;i++) {output += ("" + this._dimensions[i]);} output += "\n";
 		//output += (this.toString());
 		return output;
-		
+
 	}
 
 	/**
@@ -514,7 +590,7 @@ public class Chromosome implements Comparable<Chromosome>{
 	@Override
 	public int compareTo(Chromosome o) {
 		double threshold = 1.0/11.0;		//within 10 ticks of ideal time
-		
+
 		if (this._constraints >= threshold) {
 			return (int) Math.signum(this._fitness - o._fitness);
 		}

@@ -1,12 +1,19 @@
 package atdelphi_plus;
 
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
+
+import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class TestGeneration{
 	
@@ -62,14 +69,14 @@ public class TestGeneration{
 	public static void main(String[] args) throws IOException{
 		long startTime = System.nanoTime();
 		
-		CMEMapElites map = new CMEMapElites(gameName, gameLoc, seed, 0.5, null, "src/atdelphi_plus/");
+		//initialize mapelites
+		CMEMapElites map = new CMEMapElites(gameName, gameLoc, seed, 0.5, "src/atdelphi_plus/generatedLevels/", "src/atdelphi_plus/");
 		
 		
 		//initialize the 10 random chromosomes
 		Chromosome[] myChromos = map.randomChromosomes(popNum, null);
 		
 		//TODO: for parallelization, write to the files and read them back in
-		
 		for(int g=0;g<iterations;g++) {
 			System.out.println("");
 			System.out.println("----- MUTATION SET #" + g + " -----");

@@ -1,12 +1,12 @@
 0
 1
 wwwwwwwwwwwwwww
-w    .        w
-w+w     2     w
-w2           gw
-w  A     w   1w
-w             w
-w         3   w
-w       3   . w
-w    w        w
+w           2 w
+w w           w
+w +      .   3w
+w gg.  g   w  w
+wA            w
+w    3   g 1  w
+w         +2  w
+w    3   w    w
 wwwwwwwwwwwwwww
