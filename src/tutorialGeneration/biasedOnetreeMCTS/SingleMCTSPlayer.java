@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import core.game.StateObservation;
@@ -42,13 +43,13 @@ public class SingleMCTSPlayer
 
     public boolean improved;
     public static SingleTreeNode currentNode;
-    public int numIterations = 2000;
+    public int numIterations = 15000;
 
 
     public boolean done = false;
     public boolean visualize = false;
     
-    public ArrayList<GameEvent> critPath;
+    public List<GameEvent> critPath;
     File expFile;
     File mainExperimentsFile;
     
@@ -97,7 +98,7 @@ public class SingleMCTSPlayer
         		SingleTreeNode.deepest = 0;
         		SingleTreeNode.deepestNode = null;
 	    	    init(a_gameState);
-	    		m_root.numIterations = 500;
+	    		m_root.numIterations = this.numIterations;
 	    	    m_root.mctsSearch(improved, critPath);
 	    	    int action = m_root.mostVisitedAction();
 //	    	    if(visualize) {
