@@ -4,16 +4,14 @@ package atdelphi_plus;
 //frankensteined from CMEMapElites MarioICDL by amidos
 
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -35,16 +33,17 @@ public class CMEMapElites {
 
 
 
-	public CMEMapElites(String gn, String gl, Random seed, double coinFlip, String genFolder, String tutFolder) {
+	public CMEMapElites(String gn, String gl, Random seed, double coinFlip, String genFolder, String tutFolder, int idealTime, double compareThresh) {
 		this._gameName = gn;
 		this._coinFlip = coinFlip;
 
 		ParseTutorialRules(tutFolder);
-		Chromosome.SetStaticVar(seed, gn, gl, genFolder, tutInteractionDict);
+		Chromosome.SetStaticVar(seed, gn, gl, genFolder, tutInteractionDict, idealTime, compareThresh);
 	}
 
 	//returns a batch of randomly created chromosomes
 	public Chromosome[] randomChromosomes(int batchSize, String placeholder) {
+		//System.out.println("MAP: Randomly generating " + batchSize +" chromosomes...");
 		Chromosome[] randos = new Chromosome[batchSize];
 		for(int i=0;i<batchSize;i++) {
 			randos[i] = new Chromosome();
@@ -68,6 +67,10 @@ public class CMEMapElites {
 				if(set_c.compareTo(c) < 0) {
 					_map.replace(dimen, c);
 				}
+				//otherwise increase the current elite's age
+				else {
+					_map.get(dimen).incrementAge();
+				}
 			}
 		}
 	}
@@ -83,6 +86,7 @@ public class CMEMapElites {
 		return cells;
 	}
 
+	//generates the next batch of chromosomes from the elite cells and mutates them
 	public Chromosome[] makeNextGeneration(int batchSize) {
 		Chromosome[] nextGen = new Chromosome[batchSize];
 		Chromosome[] eliteCells = getCells();
@@ -100,6 +104,60 @@ public class CMEMapElites {
 		}
 
 		return nextGen;
+	}
+	
+	//prints the stats for the generation given in the form:
+	// "gen #", "max fitness of gen", "# feasible chromosomes", "# infeasible chromosomes"
+	public String printGenStats(int genNum, Chromosome[] generation) {
+		String str = "";
+		
+		//add generation number
+		str += genNum + ", ";
+		
+		//calculate the maximum fitness
+		double maxFit = getGenMaxFitness(generation);
+		str += maxFit + ", ";
+		
+		//count up the feasible and infeasbile chromosomes
+		int[] feasCt = countFeasibleInfeasible(generation);
+		str += feasCt[0] + ", " + feasCt[1];
+		
+		return str;
+	}
+	
+	//returns the average fitness of the MAP
+	public double getMapAvgFitness() {
+		Chromosome[] cset = getCells();
+		double avg = 0;
+		for(Chromosome c : cset) {
+			avg += c.getFitness();
+		}
+		return avg/cset.length;
+	}
+	
+	//gets the maximum fitness amount of a generation of chromosomes
+	public double getGenMaxFitness(Chromosome[] generation) {
+		double maxFit = 0;
+		for(Chromosome c : generation) {
+			if(c.getFitness() > maxFit)
+				maxFit = c.getFitness();
+		}
+		return maxFit;
+	}
+	
+	//returns the number of feasible and infeasible chromosomes of a generation
+	// format: [# feasible, # infeasbile]
+	public int[] countFeasibleInfeasible(Chromosome[] generation) {
+		int[] ct = {0, 0};
+		
+		for(Chromosome c:generation) {
+			if(c._constraints >= Chromosome.compareThreshold)
+				ct[0]++;
+			else
+				ct[1]++;
+		}
+		
+		return ct;
 	}
 
 	//returns the dimensions binary vector as a string (i.e. [0,1,0,1] => 0101)
@@ -348,6 +406,66 @@ public class CMEMapElites {
 
 			bw.write(str);
 			bw.close();
+		}
+	}
+	
+	//exports the current map so it can be imported later
+	//checkptPath should be the form:
+	//	`[checkPtDir]/[gameName]_[iterationNum]/
+	public void checkpointExport(String checkPtPath) throws IOException {
+		Set<String> keys = this._map.keySet();
+		
+		//individually writes every level dimension, age, constraints, fitness, and text level
+		for(String k : keys) {
+			String wholePath = checkPtPath + this._gameName + "_" + k + ".txt";
+			BufferedWriter bw = new BufferedWriter(new FileWriter(wholePath));
+
+			Chromosome l = this._map.get(k);
+			String str = "";
+
+			//metadata section
+			str += l.get_age() + "\n";					//age
+			str += (l._hasBorder ? "1" : "0")+ "\n";	//border
+			str += l.getConstraints() + "\n";			//constraints
+			str += l.getFitness()+"\n";						//fitnesss
+			str += this.dimensionsString(l._dimensions);		//dimension
+
+			//text level section
+			str += "\n\n";
+			str += l.toString();
+
+			bw.write(str);
+			bw.close();
+		}
+	}
+	
+	//imports the checkpoint elite chromosomes to the map
+	//returns the iteration number to start from
+	public void checkpointImport(String checkPtPath, int iteration) throws IOException {
+		//open the folder full of files
+		String wholePath = checkPtPath+this._gameName+"_"+iteration+"/";
+		File folder = new File(wholePath);
+		
+		//if the directory doesn't exist - exit
+		if(!folder.exists()) {
+			System.out.println("[ERROR] Cannot find directory: " + wholePath);
+			return;
+		}
+		
+		//read in the files otherwise
+		String[] files = folder.list();
+		for(String f : files) {
+			//read in the contents
+			String[] contents = new String(Files.readAllBytes(Paths.get(wholePath+f))).split("\n\n");
+			String metaData = contents[0];
+			String level = contents[1];
+			
+			//create a new chromosome
+			Chromosome c = new Chromosome();
+			c.rewriteFromCheckpoint(metaData, level);
+			
+			//get the dimension (assuming the map is empty upon initialization)
+			_map.put(this.dimensionsString(c._dimensions), c);
 		}
 	}
 

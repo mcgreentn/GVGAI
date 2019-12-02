@@ -52,6 +52,8 @@ public class Chromosome implements Comparable<Chromosome>{
 	static protected String _gamePath;
 	static protected String[] _allChar;
 	static protected ArrayList<String[]> _rules;
+	static protected int idealTime;
+	static protected double compareThreshold;
 
 
 	/********************
@@ -71,13 +73,15 @@ public class Chromosome implements Comparable<Chromosome>{
 
 
 	//sets the static variables for the Chromsome class - shared between all chromosomes
-	public static void SetStaticVar(Random seed, String gn, String gp, String genFolder, ArrayList<String[]> r) {
+	public static void SetStaticVar(Random seed, String gn, String gp, String genFolder, ArrayList<String[]> r, int it, double ct) {
 		Chromosome._rnd = seed;
 		Chromosome._gameName = gn;
 		Chromosome._gamePath = gp;
 		Chromosome._rules = r;
 		Chromosome._allChar = getMapChar();
 		Chromosome.outputInteractionJSON = genFolder + "interactions_%.json";
+		Chromosome.idealTime = it;
+		Chromosome.compareThreshold = ct;
 
 	}
 
@@ -124,43 +128,6 @@ public class Chromosome implements Comparable<Chromosome>{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	//file-based chromosome initialization function (uncalculated)
-	//public void fileInit(int age, boolean hasBorder, String extLevel) {
-	public void fileInit(String fileContents) {
-		String[] fileStuff = fileContents.split("\n");
-
-		this._age = Integer.parseInt(fileStuff[0]);
-		this._hasBorder = (fileStuff[1] == "0" ? false : true);
-		this._textLevel = "";
-		for(int i=2;i<fileStuff.length;i++) {
-			this._textLevel += (fileStuff[i] + "\n");
-		}
-		this._textLevel.trim();
-	}
-
-	//overwrites the results from an already calculated chromosome of a child process
-	public void saveResults(String fileContents) {
-		String[] fileStuff = fileContents.split("\n");
-
-		this._age = Integer.parseInt(fileStuff[0]);
-		this._hasBorder = (fileStuff[1] == "0" ? false : true);
-		this._constraints = Double.parseDouble(fileStuff[2]);
-		this._fitness = Double.parseDouble(fileStuff[3]);
-		String[] d = fileStuff[4].split("");
-		this._dimensions = new int[d.length];
-		for(int i=0;i<d.length;i++) {
-			this._dimensions[i] = Integer.parseInt(d[i]);
-		}
-	}
-
-
-
-	//returns the full level
-	private String fullLevel(String ph) {
-		String[] lines = new IO().readFile(ph);
-		return String.join("\n", lines);
 	}
 
 	//stripped from LevelGenMachine's loadGeneratedFile() method
@@ -240,8 +207,12 @@ public class Chromosome implements Comparable<Chromosome>{
 		String col_json = Chromosome.outputInteractionJSON.replaceFirst("%", ("_col_"+id));
 		String play_json = Chromosome.outputInteractionJSON.replaceFirst("%", ("_key_"+id));
 
-
+		long time1 = System.nanoTime();
 		double[] results = ArcadeMachine.runOneGame(Chromosome._gamePath, outFile, false, aiAgent, null, Chromosome._rnd.nextInt(), 0, new String[]{col_json, play_json});
+		long time2 = System.nanoTime();
+		
+		System.out.println(" -- Game time elapsed: " + ((time2-time1)/1000000.0) + " ms -- ");
+		
 		/*
 		for(double d : results) {
 			System.out.println(d);
@@ -269,7 +240,7 @@ public class Chromosome implements Comparable<Chromosome>{
 		//this._constraints = (results[0] / results[2]) + (((1-results[0]) * 0.25) / results[2]);
 
 		//constraints = (win / (timeToWin dist from ideal time)) + ((1-win) * 0.25 / (timeToSurvive dist from ideal time))
-		int idealTime = 50;
+		int idealTime = Chromosome.idealTime;
 		this._constraints = (results[0] / (Math.abs(idealTime - results[2])+1)) + (((1-results[0]) * 0.25) / (Math.abs(idealTime - results[2])+1));
 	}
 
@@ -299,6 +270,9 @@ public class Chromosome implements Comparable<Chromosome>{
 			}
 
 		}	
+		
+		//number of characters
+		//System.out.println("allCt: " + allCt);
 
 		//calculate the probabilities for the entropy
 		double[] probs = new double[achar.length];
@@ -313,10 +287,11 @@ public class Chromosome implements Comparable<Chromosome>{
 		//calculate entropy (-sum(plog2(p)))
 		double entropy = 0;
 		for(int b=0;b<probs.length;b++) {
-			entropy = (-1*(probs[b] * log2(probs[b])));
+			if(probs[b] > 0)
+				entropy += (-1*(probs[b] * Math.log10(probs[b])));
 		}
 
-		return entropy;
+		return 1.0 - entropy;
 	}
 
 
@@ -364,7 +339,7 @@ public class Chromosome implements Comparable<Chromosome>{
 
 
 		}catch(FileNotFoundException e) {
-			System.out.println("Unable to open file '" + Chromosome.outputInteractionJSON.replaceFirst("%", (""+id)) + "'");                
+			System.out.println("Unable to open file '" + Chromosome.outputInteractionJSON.replaceFirst("%", ("_col_"+id)) + "'");                
 		}
 		catch(IOException e) {
 			e.printStackTrace();
@@ -390,8 +365,9 @@ public class Chromosome implements Comparable<Chromosome>{
 				String action = obj.get("action").toString();
 				String sprite1 = obj.get("sprite1").toString();
 
-				String[] tryKey = {action, "", sprite1, "Player Input"};
-
+				//String[] tryKey = {action, "", sprite1, "Player Input"};
+				String[] tryKey = {"Spawn", "", sprite1, "Press Space"};		//for now default "ACTION_USE" to "Press Space"
+				
 				//System.out.println(Arrays.deepToString(tryKey));
 
 				//confirm the interaction in the dimension space
@@ -532,6 +508,48 @@ public class Chromosome implements Comparable<Chromosome>{
 
 
 
+	//file-based chromosome initialization function (uncalculated)
+	//public void fileInit(int age, boolean hasBorder, String extLevel) {
+	public void fileInit(String fileContents) {
+		String[] fileStuff = fileContents.split("\n");
+
+		this._age = Integer.parseInt(fileStuff[0]);
+		this._hasBorder = (fileStuff[1] == "0" ? false : true);
+		this._textLevel = "";
+		for(int i=2;i<fileStuff.length;i++) {
+			this._textLevel += (fileStuff[i] + "\n");
+		}
+		this._textLevel.trim();
+	}
+
+	//overwrites the results from an already calculated chromosome of a child process
+	public void saveResults(String fileContents) {
+		String[] fileStuff = fileContents.split("\n");
+
+		this._age = Integer.parseInt(fileStuff[0]);
+		this._hasBorder = (fileStuff[1] == "0" ? false : true);
+		this._constraints = Double.parseDouble(fileStuff[2]);
+		this._fitness = Double.parseDouble(fileStuff[3]);
+		String[] d = fileStuff[4].split("");
+		this._dimensions = new int[d.length];
+		for(int i=0;i<d.length;i++) {
+			this._dimensions[i] = Integer.parseInt(d[i]);
+		}
+	}
+
+	
+	//rewrites the chromosome (from a save point exported by the map)
+	public void rewriteFromCheckpoint(String chromoMeta, String chromoLevel) {
+		this.saveResults(chromoMeta);
+		this._textLevel = chromoLevel;
+	}
+
+
+	//returns the full level
+	private String fullLevel(String ph) {
+		String[] lines = new IO().readFile(ph);
+		return String.join("\n", lines);
+	}
 
 	/*
 	 * Copies the textLevel to the placeholder file
@@ -581,6 +599,16 @@ public class Chromosome implements Comparable<Chromosome>{
 
 	}
 
+	//creates a checkpoint file format for the level (exports entire information about the chromosome)
+	public String toCheckPointFile() {
+		String topOutput = toOutputFile();
+		String txtLevel = "\n\n"+toString();
+		String totalOutput = topOutput + txtLevel;
+		return totalOutput;
+	}
+	
+	
+	
 	/**
 	 * compares the constraints and fitness of 2 chromosomes
 	 * taken directly from Chromosome.java [MarioAI]
@@ -589,8 +617,9 @@ public class Chromosome implements Comparable<Chromosome>{
 	 */
 	@Override
 	public int compareTo(Chromosome o) {
-		double threshold = 1.0/11.0;		//within 10 ticks of ideal time
-
+		//double threshold = 1.0/10.0;		//within 10 ticks of ideal time
+		double threshold = Chromosome.compareThreshold;
+		
 		if (this._constraints >= threshold) {
 			return (int) Math.signum(this._fitness - o._fitness);
 		}
@@ -614,6 +643,11 @@ public class Chromosome implements Comparable<Chromosome>{
 		return this._dimensions;
 	}
 
+	///////////  SETTER FUNCTIONS  //////////
+	public void incrementAge() {
+		this._age++;
+	}
+	
 
 	///////////   HELPER FUNCTIONS   ////////////
 	//gets the index of a character in an array (helper function)
