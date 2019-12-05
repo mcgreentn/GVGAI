@@ -190,7 +190,7 @@ public class ArcadeMachine {
 
     //same as above but extended for json file input
     public static double[] runOneGame(String game_file, String level_file, boolean visuals, String agentNames,
-    	    String actionFile, int randomSeed, int playerID, String jsonFile) throws IOException {
+    	    String actionFile, int randomSeed, int playerID, String[] jsonFiles) throws IOException {
     		VGDLFactory.GetInstance().init(); // This always first thing to do.
     		VGDLRegistry.GetInstance().init();
     		
@@ -277,7 +277,7 @@ public class ArcadeMachine {
     		if (visuals)
     			score = toPlay.playGame(players, randomSeed, anyHuman, playerID);
     		else
-    			score = toPlay.runGame(players, randomSeed, jsonFile);
+    			score = toPlay.runGame(players, randomSeed, jsonFiles);
 
     		// Finally, when the game is over, we need to tear the players down.
     		ArcadeMachine.tearPlayerDown(toPlay, players, actionFile, randomSeed, true);

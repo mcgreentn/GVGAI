@@ -936,7 +936,28 @@ public abstract class Game {
 		{
 			PlayerAction playerAction = 
 					new PlayerAction(String.valueOf(this.gameTick), action);
-			storePlayerAction.storeAllPlayerActions(playerAction);
+			
+			//try to find the right avatar id
+			int activeAvatarId = avatarId;
+			
+			
+			int spriteOrderCount = spriteOrder.length;
+			for (int i = spriteOrderCount - 1; i >= 0; --i) {
+				int spriteTypeInt = spriteOrder[i];
+				ArrayList<VGDLSprite> spritesList = spriteGroups[spriteTypeInt].getSprites();
+				if(spritesList != null) {
+					for (VGDLSprite sp : spritesList) {
+						if ((sp instanceof MovingAvatar) && !sp.is_disabled()) {
+							//System.out.println("good:" + VGDLRegistry.GetInstance().getRegisteredSpriteKey(sp.getType())); 
+							activeAvatarId = sp.getType();				
+						}
+						//System.out.println(VGDLRegistry.GetInstance().getRegisteredSpriteKey(sp.getType()));
+					}
+				}
+			}
+			
+			
+			storePlayerAction.storeAllPlayerActions(playerAction, VGDLRegistry.GetInstance().getRegisteredSpriteKey(activeAvatarId));
 
 			firstTimeEvents.add(playerAction);
 		}
@@ -962,9 +983,22 @@ public abstract class Game {
 
 	//exports the interactions done in the game run to a JSON file
 	//for use with the AtDelphi+ chromosome dimension calculation
-	public void storeInteractionsJSON(String json_file) {
-		storeInteraction.writeInteractionJSONFile(json_file);
-		//System.out.println("Interactions exported @ " + json_file);
+	public void storeInteractionsJSON(String[] jsonfiles) {
+		storeInteraction.writeInteractionJSONFile(jsonfiles[0]);
+		
+		//this...
+		storePlayerAction.writePlayerActionJSONFile(jsonfiles[1]);
+		
+		//...or this
+		/*
+		try {
+			storeGameSimulationResult.writeResultToAJSONFile(jsonfiles[1]);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		*/
+		//System.out.println("Interactions exported @ " + jsonfiles[0] + " and " + jsonfiles[1]);
 	}
 
 
@@ -977,7 +1011,7 @@ public abstract class Game {
 	 *            sampleRandom seed for the whole game.
 	 * @return the score of the game played.
 	 */
-	public double[] runGame(Player[] players, int randomSeed, String jsonFile) {
+	public double[] runGame(Player[] players, int randomSeed, String[] jsonFiles) {
 
 		//Object responsible to store the game frames
 		StoreFrame frameStorer = new StoreFrame();
@@ -990,13 +1024,14 @@ public abstract class Game {
 			this.gameCycle(); // Execute a game cycle.
 
 			///  PUT THIS BACK LATER  ///
-			//storeFramesAndActions(players, frameStorer);
+			storeFramesAndActions(players, frameStorer);
 		}
 		///  PUT THIS BACK LATER  ///
 		//storeActionsAndInteractions();
 
 		//saves to a dummy json file (for use with AtDelphi+ to get dimensionality)
-		storeInteractionsJSON(jsonFile);
+		storeInteractionsJSON(jsonFiles);
+		
 
 		// Update the forward model for the game state sent to the controller.
 		fwdModel.update(this);
@@ -1350,6 +1385,7 @@ public abstract class Game {
 				sb2 += "Player" + i + "-Score:" + Types.SCORE_DISQ + ", ";
 			}
 		}
+		
 
 
 		if(avatars[0] != null)

@@ -17,17 +17,18 @@ public class StorePlayerAction {
 		playerActionArray = new JSONArray();
 	}
 	
-	public JSONObject storePlayerAction(PlayerAction playerAction)
+	public JSONObject storePlayerAction(PlayerAction playerAction, String sprite)
 	{
 		JSONObject playerActionObejct = new JSONObject();
 		playerActionObejct.put("tick", playerAction.gameTick);
 		playerActionObejct.put("action", playerAction.action);
+		playerActionObejct.put("sprite1", sprite);
 		return playerActionObejct;
 	}
 	
-	public void storeAllPlayerActions(PlayerAction playerAction)
+	public void storeAllPlayerActions(PlayerAction playerAction, String sprite)
 	{
-		JSONObject playerActionObject = storePlayerAction(playerAction);
+		JSONObject playerActionObject = storePlayerAction(playerAction, sprite);
 		playerActionArray.add(playerActionObject);
 	}
 	

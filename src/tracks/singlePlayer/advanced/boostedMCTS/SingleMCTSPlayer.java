@@ -32,7 +32,7 @@ public class SingleMCTSPlayer
     public Random m_rnd;
 
     public int num_actions;
-    public int numIterations = 250;
+    public int numIterations = 20;
     public Types.ACTIONS[] actions;
     public EquationNode rewardEquation;
     

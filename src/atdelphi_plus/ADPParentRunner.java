@@ -18,6 +18,18 @@ import atdelphi_plus.evaluator.ParentEvaluator;
 
 public class ADPParentRunner {
 
+	private static void updateEliteCountFile(String fileLoc, int gen, int ct, double avg_fit){
+		File statFile = new File(fileLoc);
+		try {
+			FileWriter fw = new FileWriter(statFile, true);
+			fw.write(gen +","+ct+","+avg_fit+"\n");
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
 	private static void resetAllFolders(String in, String out) {
 		deleteDirectory(new File(in));
 		deleteDirectory(new File(out));
@@ -78,6 +90,15 @@ public class ADPParentRunner {
 		bw.close();
 	}
 	
+	//create a set of directories from a list of strings
+	public static void createDirectories(String[] dir) {
+		for(String d : dir) {
+			File f = new File(d);
+			if(!f.exists())
+				f.mkdir();
+		}
+	}
+	
 	public static void main(String[] args)  throws IOException{
 		////////////////		IMPORT PARAMETERS         //////////////
 		
@@ -95,14 +116,24 @@ public class ADPParentRunner {
 		int popSize = Integer.parseInt(parameters.get("populationSize"));
 		double coinFlip = Double.parseDouble(parameters.get("coinFlip"));
 		int exportFreq = Integer.parseInt(parameters.get("exportFreq"));
+		int saveFreq = Integer.parseInt(parameters.get("checkpointFreq"));
+		int idealTime = Integer.parseInt(parameters.get("idealLevelTime"));
+		double compareThresh = Double.parseDouble(parameters.get("constraintsThreshold")); 
 		
 		//import the game list
 		HashMap<Integer, String[]> gameList = readGamesCSV(parameters.get("gameListCSV"));
 		
+		//create all the directories beforehand
+		createDirectories(new String[]{parameters.get("inputFolder"),
+		                   parameters.get("outputFolder"),
+		                   parameters.get("resultFolder"),
+		                   parameters.get("generatorFolder"),
+		                   parameters.get("checkpointFolder")
+							});
+		
+		
+		
 		/////////////		START OF TUTORIAL LEVEL GENERATION   	/////////////////
-		
-		
-		//TODO: Repeat for all games
 		
 		
 		//get the game name and game location
@@ -110,7 +141,7 @@ public class ADPParentRunner {
 		String gameLoc = gameList.get(gameIndex)[1];
 		
 		//setup map elites and the first chromosomes
-		CMEMapElites map = new CMEMapElites(gameName, gameLoc, seed, coinFlip, parameters.get("generatorFolder"), parameters.get("tutorialFolder"));
+		CMEMapElites map = new CMEMapElites(gameName, gameLoc, seed, coinFlip, parameters.get("generatorFolder"), parameters.get("tutorialFolder"), idealTime, compareThresh);
 		ParentEvaluator parent = new ParentEvaluator(parameters.get("inputFolder"), parameters.get("outputFolder"));
 		System.out.println("First Batch of Chromosomes");
 		Chromosome[] chromosomes = map.randomChromosomes(popSize, parameters.get("generatorFolder") + "init_ph.txt");
@@ -119,17 +150,41 @@ public class ADPParentRunner {
 		int iteration = 0;
 		int maxIterations = -1;
 		if(args.length > 0) {
-			maxIterations = Integer.parseInt(args[0]);
+			//1 args? set max
+			if(args.length == 1)
+				maxIterations = Integer.parseInt(args[0]);
+			
+			//2 args? set start + set max
+			else if(args.length == 2) {
+				iteration = Integer.parseInt(args[0]);
+				maxIterations = Integer.parseInt(args[1]);
+			}
+		}
+		
+		String statFile = parameters.get("resultFolder") + "map_stats.txt";	//statfile
+		
+		//if there is a starting iteration, import the map from that point
+		if(iteration > 0) {
+			map.checkpointImport(parameters.get("checkpointFolder"), iteration);
+		}
+		//otherwise, delete old stats file
+		else {
+			
+			FileWriter fw = new FileWriter(new File(statFile), false);
+			fw.write("");
+			fw.close();
 		}
 		
 		//delete old folders 
 		System.out.println("P: Resetting input/output folders...");
 		resetAllFolders(parameters.get("inputFolder"), parameters.get("outputFolder"));
 		
+		
+		
 		//run forever, or until all the iterations have been completed
 		while(true) {
 			try {
-				System.out.println("\n\nITERATION #" + iteration + "/" + maxIterations);
+				System.out.println("\n\nITERATION #" + (iteration+1) + "/" + maxIterations);
 				
 				// 1p) export the chromosomes to the files for the children
 				// 		in the form [age\n hasborder\n level]
@@ -169,6 +224,18 @@ public class ADPParentRunner {
 					map.deepExport(parameters.get("resultFolder") + iteration + "/");
 					deleteDirectory(new File(parameters.get("resultFolder") + (iteration - exportFreq) + "/"));
 				}
+				
+				// 8.1p) write map elites and info to the checkpoint folder so it can be reused later (done every y iterations)
+				if(iteration % saveFreq == 0) {
+					System.out.println("P: Saving checkpoint (Iteration " + iteration + ")...");
+					String p = parameters.get("checkpointFolder")+ gameName + "_" + iteration + "/";
+					File f = new File(p);
+					f.mkdir();
+					map.checkpointExport(p);
+				}
+				
+				// 8.2p) write the stats of the mapelites out
+				updateEliteCountFile(statFile, iteration, map.getCells().length,map.getMapAvgFitness());
 				
 				//if completed all iterations, then finish
 				if(maxIterations > 0 && iteration >= maxIterations) {

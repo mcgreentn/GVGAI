@@ -1,22 +1,11 @@
 package atdelphi_plus;
 
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONArray;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+public class TimeExperiment {
 
-public class TestGeneration{
-	
 	//linear program to test the generation, mutation, and creation of MAPElites
 
 	//location of games
@@ -61,64 +50,65 @@ public class TestGeneration{
 	
 	static String aiRunner = "agents.adrienctx.Agent";
 	
-	static int popNum = 10;
-	static int iterations = 5;
+	static int popNum = 100;
+	static int expNum = 10;
 	
 	
 	public static void main(String[] args) throws IOException{
-		long startTime = System.nanoTime();
+		/*
+		 * EXPERIMENT:
+		 * TIME TO RANDOMLY INITIALIZE AND GENERATE CHROMOSOMES
+		 *
+		
+		System.out.println("###  EXPERIMENT: TIME TO RANDOMLY INITIALIZE CHROMOSOMES  ###");
+		System.out.println("###     Population: " + popNum + " | Trials: " + expNum + "     ###");
+		*/
 		
 		//initialize mapelites
 		CMEMapElites map = new CMEMapElites(gameName, gameLoc, seed, 0.5, "src/atdelphi_plus/generatedLevels/", "src/atdelphi_plus/", 70, 1.0/10.0);
+				
+		double sumTime = 0;
 		
-		
-		//initialize the 10 random chromosomes
-		long miniTime1 = System.nanoTime();
-		Chromosome[] myChromos = map.randomChromosomes(popNum, null);
-		long miniTime2 = System.nanoTime();
-		System.out.println("\nRandomly initializing " + popNum + " chromosomes took: " + ((miniTime2 - miniTime1)/1000000.0) + " ms\n"); 
-		
-		
-		//TODO: for parallelization, write to the files and read them back in
-		for(int g=0;g<iterations;g++) {
-			System.out.println("");
-			System.out.println("----- MUTATION SET #" + g + " -----");
-			
-			//run simulations on all the chromosomes and calculate the fitness + dimension vector for them
-			for(Chromosome c : myChromos){
-				//System.out.println(c);
-				System.out.println("");
-				System.out.println(c._textLevel);
-				//System.out.println(String.join(" ", c._allChar));
-				c.calculateResults(aiRunner, null, 0);
-				System.out.println("Constraints score: " + c._constraints);
-				System.out.println("Fitness score: " + c._fitness);
-				System.out.println("Dimension vector: " + Arrays.toString(c._dimensions));
-				System.out.println("");
-			}
-			
-			//print the stats of the generation
-			map.printGenStats(g, myChromos);
-			
-			
-			//assign the chromosomes to the map elite hash table if their fitness scores are better
-			map.assignChromosomes(myChromos);
-			
-			//set the new generation
-			myChromos = map.makeNextGeneration(popNum);
+		/*
+		for(int i=0;i<expNum;i++) {
+			//System.out.println("Exp: " + i);
+			//initialize the popNum # of random chromosomes
+			long miniTime1 = System.nanoTime();
+			map.randomChromosomes(popNum, null);
+			long miniTime2 = System.nanoTime();
+			sumTime += ((miniTime2-miniTime1)/1000000.0);
 		}
-
-		//export the MAPElites set
-		System.out.println("Exporting map!");
-		BufferedWriter bw = new BufferedWriter(new FileWriter("src/atdelphi_plus/generatedLevels/mapelites.txt"));
-		bw.write(map.toString());
-		bw.close();
+		sumTime /= expNum;
 		
+		System.out.println("\n\nAverage time to randomly generate " + popNum + " chromosomes: " + sumTime +" ms\n\n");
+		*/
 		
-		//time debug ending
-		long endTime = System.nanoTime();
-		System.out.println("Took "+(endTime - startTime) + " ns"); 
+		/*
+		 * EXPERIMENT:
+		 * TIME TO RUN Chromosomes
+		 */
 		
+		System.out.println("###  EXPERIMENT: TIME TO RUN CHROMOSOME LEVELS  ###");
+		System.out.println("###     Population: " + popNum + " | Trials: " + expNum + "     ###");
+		
+		sumTime = 0;
+		
+		for(int i=0;i<expNum;i++) {
+			//System.out.println("Exp: " + i);
+			//initialize the popNum # of random chromosomes
+			Chromosome[] c = map.randomChromosomes(popNum, null);
+			long miniTime1 = System.nanoTime();
+			for(int j=0;j<popNum;j++) {
+				c[j].calculateResults("agents.adrienctx.Agent", null, 0);
+			}
+			long miniTime2 = System.nanoTime();
+			sumTime += ((miniTime2-miniTime1)/1000000.0);
+		}
+		sumTime /= expNum;
+		
+		System.out.println("\n\nAverage time to randomly generate " + popNum + " chromosomes: " + sumTime +" ms\n\n");
+		
+		//System.out.println("\nRandomly initializing " + popNum + " chromosomes took: " + ((miniTime2 - miniTime1)/1000000.0) + " ms\n"); 
+				
 	}
-	
 }

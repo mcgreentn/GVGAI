@@ -42,8 +42,10 @@ public class LevelGenMachine
         VGDLFactory.GetInstance().init(); // This always first thing to do.
         VGDLRegistry.GetInstance().init();
 
+        /*
         System.out.println(
                 " ** Generating a level for " + gameFile + ", using level generator " + levelGenerator + " **");
+		*/
 
         // First, we create the game to be played..
         Game toPlay = new VGDLParser().parseGame(gameFile);
@@ -362,9 +364,9 @@ public class LevelGenMachine
                 System.out.println("Generator initialization time out (" + exceeded + ").");
 
                 return null;
-            } else {
+            } /*else {
                 System.out.println("Generator initialization time: " + timeTaken + " ms.");
-            }
+            }*/
 
             // This code can throw many exceptions (no time related):
 

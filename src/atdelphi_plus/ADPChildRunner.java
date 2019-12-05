@@ -3,7 +3,6 @@ package atdelphi_plus;
 //for use on the NYU HPC server
 
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -90,6 +89,8 @@ public class ADPChildRunner {
 		String runner = parameters.get("runner");
 		double coinFlip = Double.parseDouble(parameters.get("coinFlip"));
 		int gameIndex = Integer.parseInt(parameters.get("gameIndex"));
+		int idealTime = Integer.parseInt(parameters.get("idealLevelTime"));
+		double compareThresh = Double.parseDouble(parameters.get("constraintsThreshold")); 
 
 		//import the game list
 		HashMap<Integer, String[]> gameList = readGamesCSV(parameters.get("gameListCSV"));
@@ -99,7 +100,8 @@ public class ADPChildRunner {
 		String gameLoc = gameList.get(gameIndex)[1];
 		
 		
-		CMEMapElites map = new CMEMapElites(gameName, gameLoc, seed, coinFlip, parameters.get("generatorFolder"), parameters.get("tutorialFolder"));
+		//just to setup the static variables for chromosome
+		new CMEMapElites(gameName, gameLoc, seed, coinFlip, parameters.get("generatorFolder"), parameters.get("tutorialFolder"), idealTime, compareThresh);
 		
 		
 		/////////////		START OF TUTORIAL LEVEL GENERATION   	/////////////////

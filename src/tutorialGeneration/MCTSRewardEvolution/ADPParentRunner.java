@@ -79,6 +79,15 @@ public class ADPParentRunner {
 		bw.close();
 	}
 	
+	//create a set of directories from a list of strings
+	public static void createDirectories(String[] dir) {
+		for(String d : dir) {
+			File f = new File(d);
+			if(!f.exists())
+				f.mkdir();
+		}
+	}
+	
 	public static void main(String[] args)  throws IOException{
 		////////////////		IMPORT PARAMETERS         //////////////
 		
@@ -101,7 +110,11 @@ public class ADPParentRunner {
 		HashMap<Integer, String[]> gameList = readGamesCSV(parameters.get("gameListCSV"));
 		
 		/////////////		START OF TUTORIAL LEVEL GENERATION   	/////////////////
-		
+		//create all the directories beforehand
+		createDirectories(new String[]{parameters.get("inputFolder"),
+		                   parameters.get("outputFolder"),
+		                   parameters.get("resultFolder")
+							});
 				
 		
 		//get the game name and game location
