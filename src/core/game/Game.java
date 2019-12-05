@@ -1386,8 +1386,6 @@ public abstract class Game {
 			}
 		}
 		
-
-
 		if(avatars[0] != null)
 		{
 			storeGameSimulationResult.
