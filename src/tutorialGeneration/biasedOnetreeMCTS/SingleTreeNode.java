@@ -218,7 +218,7 @@ public class SingleTreeNode
         }
         if (selected == null)
         {
-            throw new RuntimeException("Warning! returning null: " + bestValue + " : " + this.children.length + " " +
+            System.out.println("Warning! returning null: " + bestValue + " : " + this.children.length + " " +
             + bounds[0] + " " + bounds[1]);
         }
 

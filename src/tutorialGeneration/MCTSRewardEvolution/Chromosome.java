@@ -116,9 +116,9 @@ public class Chromosome implements Comparable<Chromosome>{
 		String[] fileStuff = fileContents.split("\n");
 		
 		this._age = Integer.parseInt(fileStuff[0]);
-		this._constraints = Double.parseDouble(fileStuff[2]);
-		this._fitness = Double.parseDouble(fileStuff[3]);
-			String[] d = fileStuff[4].split("");
+		this._constraints = Double.parseDouble(fileStuff[1]);
+		this._fitness = Double.parseDouble(fileStuff[2]);
+			String[] d = fileStuff[3].split("");
 			this._dimensions = new int[d.length];
 			for(int i=0;i<d.length;i++) {
 				this._dimensions[i] = Integer.parseInt(d[i]);
@@ -140,7 +140,7 @@ public class Chromosome implements Comparable<Chromosome>{
 				Agent._critPath = Chromosome._rules;
 				System.out.println("Playing! \n * Level: " + i + "\n * Playthrough: " + j);
 
-				double[] results = ArcadeMachine.runOneGame(Chromosome._gamePath, levelName, true, aiAgent, null, Chromosome._rnd.nextInt(), 0);
+				double[] results = ArcadeMachine.runOneGame(Chromosome._gamePath, levelName, false, aiAgent, null, Chromosome._rnd.nextInt(), 0);
 				double win = results[0];
 				double score = results[1];
 				double runFitness = win * 0.7 + score * 0.3;

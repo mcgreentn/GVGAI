@@ -102,9 +102,7 @@ public class ADPParentRunner {
 		
 		/////////////		START OF TUTORIAL LEVEL GENERATION   	/////////////////
 		
-		
-		//TODO: Repeat for all games
-		
+				
 		
 		//get the game name and game location
 		String gameName = gameList.get(gameIndex)[0];
@@ -163,7 +161,7 @@ public class ADPParentRunner {
 				parent.clearOutputFiles(chromosomes.length);
 				
 				// 8p) write map results and info to the results folder (done every x iterations)
-				if(iteration % exportFreq == 0) {
+				if(iteration % exportFreq == 0 || iteration == 0) {
 					System.out.println("P: Writing results...");
 					File f = new File(parameters.get("resultFolder") + iteration + "/");
 					f.mkdir();
