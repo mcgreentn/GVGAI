@@ -171,7 +171,8 @@ public class Chromosome implements Comparable<Chromosome>{
 		//System.out.println("calculating dimensions...");
 		
 		//create a new dimension set based on the size of _rules and set all values to 0
-		this._dimensions = new int[(int) Chromosome._maxDepth];
+		int x = (int) Chromosome._maxDepth;
+		this._dimensions = new int[x * x];
 		for(int d=0;d<this._dimensions.length;d++) {
 			this._dimensions[d] = 0;
 		}
