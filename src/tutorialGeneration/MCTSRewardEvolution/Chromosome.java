@@ -103,7 +103,9 @@ public class Chromosome implements Comparable<Chromosome>{
 	 */
 	public void randomInit() {
 		try {
-			this.rewardEquation = EvEqT.generateRandomTreeEquation(Chromosome._eParser, 10);
+			this.rewardEquation = EvEqT.generateRandomTreeEquation(Chromosome._eParser, (int) Chromosome._maxDepth);
+			
+//			this.rewardEquation = Chromosome._eParser.parse("divide(rand(inv(-0.07142857142857142),ceil(withkey monsterQuick KillSprite)),pow(min(min(mod(mul(-20.0,monsterSlow wall StepBack),ln(-15.0)),-0.05263157894736842),monsterSlow wall StepBack),sub(mul(add(-10.0,monsterQuick monsterNormal StepBack),0.3333333333333333),sin(divide(0.14285714285714285,nokey monsterQuick KillSprite)))))");
 		} catch (Exception e) {
 			e.printStackTrace();
 		};
@@ -131,8 +133,8 @@ public class Chromosome implements Comparable<Chromosome>{
 
 		// run on all levels multiple times
 		double average = 0.0;
-		int levelCount = 1;
-		int playthroughCount = 1;
+		int levelCount = 5;
+		int playthroughCount = 5;
 		for (int i = 0; i < levelCount; i++) {
 			for(int j = 0; j < playthroughCount; j++) {
 				String levelName = Chromosome._gamePath.replace(".txt", "") + "_lvl" + i + ".txt";
@@ -170,9 +172,9 @@ public class Chromosome implements Comparable<Chromosome>{
 	private void calculateDimensions(int id) {
 		//System.out.println("calculating dimensions...");
 		
-		//create a new dimension set based on the size of _rules and set all values to 0
+		//create a new dimension set based on the size of max tree depth and set all values to 0
 		int x = (int) Chromosome._maxDepth;
-		this._dimensions = new int[x * x];
+		this._dimensions = new int[x];
 		for(int d=0;d<this._dimensions.length;d++) {
 			this._dimensions[d] = 0;
 		}
@@ -201,10 +203,11 @@ public class Chromosome implements Comparable<Chromosome>{
 					// Change a random node from a clone copy of the input equation
 					this.rewardEquation = EvEqT.changeNode(Chromosome._eParser, this.rewardEquation);
 				}
-				else {
+				else if(f >= 0.66) {
 					// Insert a new node to a clone copy of the input equation
-					this.rewardEquation = EvEqT.insertNode(Chromosome._eParser, this.rewardEquation, 5);
+					this.rewardEquation = EvEqT.insertNode(Chromosome._eParser, this.rewardEquation, (int) Chromosome._maxDepth);
 				}
+				this.rewardEquation = EvEqT.simplifyTree(Chromosome._eParser, this.rewardEquation);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

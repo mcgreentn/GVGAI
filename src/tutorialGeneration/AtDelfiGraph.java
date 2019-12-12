@@ -260,8 +260,8 @@ public class AtDelfiGraph {
 						&& !sprite2.getName().equals("Time") && !sprite2.getName().equals("Score")) {
 					ArrayList<InteractionData> intDataList = gd.getInteraction(sprite1.getName(), sprite2.getName());
 					for (InteractionData intData : intDataList) {
-						if(sprite1 != sprite2)
-							classifyInteractionData(sprite1, sprite2, intData);
+//						if(sprite1 != sprite2)
+						classifyInteractionData(sprite1, sprite2, intData);
 					}
 				}
 			}
@@ -656,9 +656,14 @@ public class AtDelfiGraph {
 		if(idOne != idTwo) {
 			MultiNode first = findVisualGraphNode(graph, idOne);
 			MultiNode second = findVisualGraphNode(graph,idTwo);
-			Edge e = graph.addEdge(first.getId() + ":" + second.getId(), first, second, true);
-			e.addAttribute("layout.weight", 25);
-			return e;
+			try {
+				Edge e = graph.addEdge(first.getId() + ":" + second.getId(), first, second, true);
+				e.addAttribute("layout.weight", 25);
+				return e;
+			} catch(IdAlreadyInUseException e) {
+				System.out.println("Edge already created!");
+			}
+
 		}
 		return null;
 	}

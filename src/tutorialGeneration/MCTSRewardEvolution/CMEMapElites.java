@@ -52,6 +52,7 @@ public class CMEMapElites {
 		for(int i=0;i<batchSize;i++) {
 			randos[i] = new Chromosome();
 		}
+		
 		return randos;
 	}
 	
@@ -180,8 +181,8 @@ public class CMEMapElites {
 			str += ("Age: " + l.get_age());
 			str += ("\nConstraints: " + l.getConstraints());
 			str += ("\nFitness: " + l.getFitness());
-			str += "\nLevel: \n";
-			str += (l.toString());
+			str += "\nequation: \n";
+			str += (l.rewardEquation);
 			
 			str += "\n\n";
 			
