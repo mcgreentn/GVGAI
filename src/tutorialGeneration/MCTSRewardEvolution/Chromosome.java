@@ -207,7 +207,7 @@ public class Chromosome implements Comparable<Chromosome>{
 					// Insert a new node to a clone copy of the input equation
 					this.rewardEquation = EvEqT.insertNode(Chromosome._eParser, this.rewardEquation, (int) Chromosome._maxDepth);
 				}
-				this.rewardEquation = EvEqT.simplifyTree(Chromosome._eParser, this.rewardEquation);
+				this.rewardEquation = EvEqT.simplifyTree(Chromosome._eParser, this.rewardEquation, true);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
