@@ -104,7 +104,7 @@ public class Chromosome implements Comparable<Chromosome>{
 	public void randomInit() {
 		try {
 			this.rewardEquation = EvEqT.generateRandomTreeEquation(Chromosome._eParser, (int) Chromosome._maxDepth);
-			
+			this.rewardEquation = EvEqT.simplifyTree(Chromosome._eParser, this.rewardEquation);
 //			this.rewardEquation = Chromosome._eParser.parse("divide(rand(inv(-0.07142857142857142),ceil(withkey monsterQuick KillSprite)),pow(min(min(mod(mul(-20.0,monsterSlow wall StepBack),ln(-15.0)),-0.05263157894736842),monsterSlow wall StepBack),sub(mul(add(-10.0,monsterQuick monsterNormal StepBack),0.3333333333333333),sin(divide(0.14285714285714285,nokey monsterQuick KillSprite)))))");
 		} catch (Exception e) {
 			e.printStackTrace();
