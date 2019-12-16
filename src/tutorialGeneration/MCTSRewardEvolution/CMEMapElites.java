@@ -37,13 +37,13 @@ public class CMEMapElites {
 	private List<GameEvent> rules;
 	
 	
-	public CMEMapElites(String gn, String gl, Random seed, double coinFlip, String mechanicsFile, String maxTreeDepth) {
+	public CMEMapElites(String gn, String gl, Random seed, double coinFlip, HashMap<String, String> parameters) {
 		this._gameName = gn;
 		this._coinFlip = coinFlip;
 		
-		rules = parseTutorialRules(mechanicsFile);
+		rules = parseTutorialRules(parameters.get("mechanicsFile"));
 		varNames = this.convertToRuleNames(rules);
-		Chromosome.SetStaticVar(seed, gn, gl, rules, varNames, Double.parseDouble(maxTreeDepth));
+		Chromosome.SetStaticVar(seed, gn, gl, rules, varNames, Double.parseDouble(parameters.get("maxTreeDepth")));
 	}
 	
 	//returns a batch of randomly created chromosomes
@@ -56,6 +56,11 @@ public class CMEMapElites {
 		return randos;
 	}
 	
+	public List<Chromosome> checkForFurtherReview(Chromosome[] csomes) {
+		
+		
+		return null;
+	}
 	//assigns the new set of chromosomes to the map elites hash if their fitness scores are better than the saved chromosomes 
 	public void assignChromosomes(Chromosome[] csomes) {
 		for(Chromosome c : csomes) {
@@ -68,8 +73,11 @@ public class CMEMapElites {
 			}else {
 				Chromosome set_c = _map.get(dimen);
 				//replace the current chromosome if the new one is better
-				if(set_c.compareTo(c) < 0) {
+				if(set_c.compareTo(c) < 0 && set_c.get_age() < c.get_age()) {
 					_map.replace(dimen, c);
+				}
+				else {
+					_map.get(dimen).incrementAge();
 				}
 			}
 		}

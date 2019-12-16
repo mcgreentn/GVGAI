@@ -122,7 +122,7 @@ public class ADPParentRunner {
 		String gameLoc = gameList.get(gameIndex)[1];
 		
 		//setup map elites and the first chromosomes
-		CMEMapElites map = new CMEMapElites(gameName, gameLoc, seed, coinFlip, parameters.get("tutorialFile"), parameters.get("maxTreeDepth"));
+		CMEMapElites map = new CMEMapElites(gameName, gameLoc, seed, coinFlip, parameters);
 		ParentEvaluator parent = new ParentEvaluator(parameters.get("inputFolder"), parameters.get("outputFolder"));
 		System.out.println("First Batch of Chromosomes");
 		Chromosome[] chromosomes = map.randomChromosomes(popSize, parameters.get("generatorFolder") + "init_ph.txt");
@@ -167,6 +167,8 @@ public class ADPParentRunner {
 				}
 				
 				// 7p) assign the chromosomes to the MAP
+				System.out.println("P: Checking population for further assessment...");
+				// TODO check to see if any chromomsomes need to be run more before assignment
 				System.out.println("P: Assigning chromosomes to the MAP...");
 				map.assignChromosomes(chromosomes);
 				

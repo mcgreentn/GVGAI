@@ -61,10 +61,11 @@ public class Chromosome implements Comparable<Chromosome>{
 		protected double _fitness;
 		protected int[] _dimensions;		//binary vector for the interactions that occured for this chromosome
 		private int _age;					//age of the current chromosome
+		
 
 	//extended variables
 		protected EquationNode rewardEquation;
-
+		private List<Double> fitnesses;
 	
 	//sets the static variables for the Chromsome class - shared between all chromosomes
 	public static void SetStaticVar(Random seed, String gn, String gp, List<GameEvent> rules, HashSet<String> varNames, double maxDepth) {
@@ -134,7 +135,7 @@ public class Chromosome implements Comparable<Chromosome>{
 		// run on all levels multiple times
 		double average = 0.0;
 		int levelCount = 5;
-		int playthroughCount = 5;
+		int playthroughCount = 1;
 		for (int i = 0; i < levelCount; i++) {
 			for(int j = 0; j < playthroughCount; j++) {
 				String levelName = Chromosome._gamePath.replace(".txt", "") + "_lvl" + i + ".txt";
@@ -146,17 +147,17 @@ public class Chromosome implements Comparable<Chromosome>{
 				double win = results[0];
 				double score = results[1];
 				double runFitness = win * 0.7 + score * 0.3;
-				
+				fitnesses.add(runFitness);
 				average += runFitness;
 			}
 		}
 		average = average / (levelCount * playthroughCount);
-
-		this._age++;					//increment the age (the chromosome is older now that it has been run)
+		
+		this._age++; //increment the age (the chromosome is older now that it has been run)
 		setConstraints(0); 	//set the constraints (win or lose)
-		//calculateRawFitness(results[2], this._textLevel);
-		this._fitness = average;		//set the fitness
+//		this._fitness = average;		//set the fitness
 		calculateDimensions(id);							//set the dimensions
+		
 	}
 
 
@@ -274,11 +275,26 @@ public class Chromosome implements Comparable<Chromosome>{
 	}
 
 	public double getFitness() {
-		return this._fitness;
+//		return this._fitness;
+		// average the fitnesses together
+		double average = 0;
+		for(double fitness : fitnesses) {
+			average += fitness;
+		}
+		average /= fitnesses.size();
+		return average;
 	}
 
 	public int[] getDimensions() {
 		return this._dimensions;
+	}
+	public int getFitnessLength() {
+		return this.fitnesses.size();
+	}
+	
+	////////// SETTER FUNCTIONS ///////////
+	public void incrementAge() {
+		this._age++;
 	}
 
 
