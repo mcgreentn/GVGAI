@@ -57,9 +57,22 @@ public class CMEMapElites {
 	}
 	
 	public List<Chromosome> checkForFurtherReview(Chromosome[] csomes) {
+		// loop thru all chromosomes to see if they have a better average fitness than an elite
+		List<Chromosome> toEval = new ArrayList<Chromosome>();
+		for(Chromosome c: csomes) {
+			int[] raw_dimen = c._dimensions; 
+			String dimen = dimensionsString(raw_dimen);
+			
+			if(_map.containsKey(dimen)) {
+				Chromosome set_c = _map.get(dimen);
+				if(set_c.compareTo(c) < 0) {
+					toEval.add(c);
+				}
+				
+			}
+		}
 		
-		
-		return null;
+		return toEval;
 	}
 	//assigns the new set of chromosomes to the map elites hash if their fitness scores are better than the saved chromosomes 
 	public void assignChromosomes(Chromosome[] csomes) {
@@ -72,8 +85,8 @@ public class CMEMapElites {
 				 _map.put(dimen, c);
 			}else {
 				Chromosome set_c = _map.get(dimen);
-				//replace the current chromosome if the new one is better
-				if(set_c.compareTo(c) < 0 && set_c.get_age() < c.get_age()) {
+				//replace the current chromosome if the new one is better and has a higher fitness length
+				if(set_c.compareTo(c) < 0 && set_c.getFitnessLength() < c.getFitnessLength()) {
 					_map.replace(dimen, c);
 				}
 				else {
