@@ -14,6 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -66,6 +67,7 @@ public class Chromosome implements Comparable<Chromosome>{
 	//extended variables
 		protected EquationNode rewardEquation;
 		private List<Double> fitnesses;
+		private int index;
 	
 	//sets the static variables for the Chromsome class - shared between all chromosomes
 	public static void SetStaticVar(Random seed, String gn, String gp, List<GameEvent> rules, HashSet<String> varNames, double maxDepth) {
@@ -84,6 +86,7 @@ public class Chromosome implements Comparable<Chromosome>{
 		this._fitness = 0;
 		this._dimensions = null;
 		this._age = 0;
+		this.fitnesses = new ArrayList<Double>();
 		
 		this.randomInit();
 	}
@@ -94,6 +97,7 @@ public class Chromosome implements Comparable<Chromosome>{
 		this._fitness = 0;
 		this._dimensions = null;
 		this._age = 0;
+		this.fitnesses = new ArrayList<Double>();
 
 		this.rewardEquation = rewardEquation;
 	}
@@ -121,11 +125,19 @@ public class Chromosome implements Comparable<Chromosome>{
 		this._age = Integer.parseInt(fileStuff[0]);
 		this._constraints = Double.parseDouble(fileStuff[1]);
 		this._fitness = Double.parseDouble(fileStuff[2]);
-			String[] d = fileStuff[3].split("");
-			this._dimensions = new int[d.length];
-			for(int i=0;i<d.length;i++) {
-				this._dimensions[i] = Integer.parseInt(d[i]);
-			}
+		
+		// take care of fitnesses array
+		String[] fit1 = fileStuff[3].replace("[", "").replace("]", "").split(",");
+		this.fitnesses.clear();
+		for(String s : fit1) {
+			this.fitnesses.add(Double.parseDouble(s));
+		}
+		
+		String[] d = fileStuff[4].split("");
+		this._dimensions = new int[d.length];
+		for(int i=0;i<d.length;i++) {
+			this._dimensions[i] = Integer.parseInt(d[i]);
+		}
 	}
 	
 
@@ -134,7 +146,7 @@ public class Chromosome implements Comparable<Chromosome>{
 
 		// run on all levels multiple times
 		double average = 0.0;
-		int levelCount = 5;
+		int levelCount = 1;
 		int playthroughCount = 1;
 		for (int i = 0; i < levelCount; i++) {
 			for(int j = 0; j < playthroughCount; j++) {
@@ -230,8 +242,9 @@ public class Chromosome implements Comparable<Chromosome>{
 	}
 
 	//creates an input file format for the level (for use with parallelization)
-	public String toInputFile() {
+	public String toInputFile(int index) {
 		String output = "";
+		output += index +"\n";
 		output += this._age + "\n";
 		output += (this.toString());
 		return output;
@@ -243,7 +256,9 @@ public class Chromosome implements Comparable<Chromosome>{
 		output += (this._age) + "\n";
 		output += (this._constraints) + "\n";
 		output += (this._fitness) + "\n";
+		output += (Arrays.toString(this.fitnesses.toArray())) + "\n";
 		for(int i=0;i<this._dimensions.length;i++) {output += ("" + this._dimensions[i]);} output += "\n";
+		output += (this.index);
 		//output += (this.toString());
 		return output;
 		
@@ -319,7 +334,9 @@ public class Chromosome implements Comparable<Chromosome>{
 	public void fileInit(String string) {
 		// read in reward equation into this chromosome's reward equation
 		try {
-			this.rewardEquation = Chromosome._eParser.parse(string.split("\n")[1]);
+			String[] info = string.split("\n");
+			this.rewardEquation = Chromosome._eParser.parse(info[2]);
+			this.index = Integer.parseInt(info[0]);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

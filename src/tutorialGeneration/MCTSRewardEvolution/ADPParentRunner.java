@@ -19,11 +19,13 @@ import tutorialGeneration.MCTSRewardEvolution.evaluator.ParentEvaluator;
 
 public class ADPParentRunner {
 
-	private static void resetAllFolders(String in, String out) {
+	private static void resetAllFolders(String in, String out, String sig) {
 		deleteDirectory(new File(in));
 		deleteDirectory(new File(out));
+		deleteDirectory(new File(sig));
 		new File(in).mkdir();
 		new File(out).mkdir();
+		new File(sig).mkdir();
 	}
 	
 	//clear everything from a specified directory
@@ -51,6 +53,9 @@ public class ADPParentRunner {
 		return parameters;
 	}
 	
+	private static void assignToChildren(List<Chromosome> chromes) {
+		
+	}
 	//parse csv file
 	public static HashMap<Integer, String[]> readGamesCSV(String csv) throws IOException{
 		HashMap<Integer, String[]> gameSet = new HashMap<Integer, String[]>();
@@ -123,7 +128,7 @@ public class ADPParentRunner {
 		
 		//setup map elites and the first chromosomes
 		CMEMapElites map = new CMEMapElites(gameName, gameLoc, seed, coinFlip, parameters);
-		ParentEvaluator parent = new ParentEvaluator(parameters.get("inputFolder"), parameters.get("outputFolder"));
+		ParentEvaluator parent = new ParentEvaluator(parameters.get("inputFolder"), parameters.get("outputFolder"), parameters.get("signalFolder"));
 		System.out.println("First Batch of Chromosomes");
 		Chromosome[] chromosomes = map.randomChromosomes(popSize, parameters.get("generatorFolder") + "init_ph.txt");
 		
@@ -136,11 +141,23 @@ public class ADPParentRunner {
 		
 		//delete old folders 
 		System.out.println("P: Resetting input/output folders...");
-		resetAllFolders(parameters.get("inputFolder"), parameters.get("outputFolder"));
+		resetAllFolders(parameters.get("inputFolder"), parameters.get("outputFolder"), parameters.get("signalFolder"));
+		
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		// check for responses
+		int childCount = parent.checkChildrenAlive();
+		
 		
 		//run forever, or until all the iterations have been completed
 		while(true) {
 			try {
+				// make blocks and start messages
+				
 				System.out.println("\n\nITERATION #" + iteration + "/" + maxIterations);
 				
 				// 1p) export the chromosomes to the files for the children
@@ -148,13 +165,15 @@ public class ADPParentRunner {
 				System.out.println("P: Writing in files for children...");
 				String[] levelOut = new String[chromosomes.length];
 				for(int i=0;i<chromosomes.length;i++) {
-					levelOut[i] = chromosomes[i].toInputFile();
+					levelOut[i] = chromosomes[i].toInputFile(i);
 				}
 				
 				// 2p-5p) wait for the children to return results from running the AI agent
-				parent.writeChromosomes(levelOut);
+				parent.writeChromosomes(levelOut, childCount);
+				// delete block
 				System.out.println("P: Waiting for children to finish...");
-				while(!parent.checkChromosomes(chromosomes.length)) {
+				Thread.sleep(50000);
+				while(!parent.checkChromosomes(Integer.parseInt(parameters.get("childCount")))) {
 					Thread.sleep(500);
 				}
 				Thread.sleep(1000);
@@ -168,6 +187,9 @@ public class ADPParentRunner {
 				
 				// 7p) assign the chromosomes to the MAP
 				System.out.println("P: Checking population for further assessment...");
+				List<Chromosome> furtherReview = map.checkForFurtherReview(chromosomes);
+				// do the further review
+				
 				// TODO check to see if any chromomsomes need to be run more before assignment
 				System.out.println("P: Assigning chromosomes to the MAP...");
 				map.assignChromosomes(chromosomes);
@@ -181,7 +203,7 @@ public class ADPParentRunner {
 					File f = new File(parameters.get("resultFolder") + iteration + "/");
 					f.mkdir();
 					map.deepExport(parameters.get("resultFolder") + iteration + "/");
-					deleteDirectory(new File(parameters.get("resultFolder") + (iteration - exportFreq) + "/"));
+//					deleteDirectory(new File(parameters.get("resultFolder") + (iteration - exportFreq) + "/"));
 				}
 				
 				//if completed all iterations, then finish

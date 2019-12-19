@@ -70,23 +70,10 @@ public class ADPChildRunner {
 		    e1.printStackTrace();
 		}
 		
-		//add extra parameters?
-		/*
-		parameters.put("agentType", "AStarAgent");
-		if(args.length > 2) {
-		    parameters.put("agentType", args[2]);
-		}
-		parameters.put("agentSTD", "1");
-		if(args.length > 3) {
-		    parameters.put("agentSTD", args[3]);
-		}
-		parameters.put("numTrials", "1");
-		if(args.length > 4) {
-		    parameters.put("numTrials", args[4]);
-		}
-		*/
+			
+
 		//initialize the child reader
-		ChildEvaluator child = new ChildEvaluator(id, size, parameters.get("inputFolder"), parameters.get("outputFolder"));
+		ChildEvaluator child = new ChildEvaluator(id, size, parameters.get("inputFolder"), parameters.get("outputFolder"), parameters.get("signalFolder"));
 		Random seed = new Random(Integer.parseInt(parameters.get("seed")));
 		String runner = parameters.get("runner");
 		double coinFlip = Double.parseDouble(parameters.get("coinFlip"));
@@ -100,11 +87,13 @@ public class ADPChildRunner {
 		String gameLoc = gameList.get(gameIndex)[1];
 		
 		
-		CMEMapElites map = new CMEMapElites(gameName, gameLoc, seed, coinFlip, parameters.get("tutorialFile"), parameters.get("maxTreeDepth"));
+		CMEMapElites map = new CMEMapElites(gameName, gameLoc, seed, coinFlip, parameters); //parameters.get("tutorialFile"), parameters.get("maxTreeDepth"));
 		
 		/////////////		START OF TUTORIAL LEVEL GENERATION   	/////////////////
 		Chromosome[] chromosomes = null;
 		
+		//send a ready signal
+		child.sendResponse();
 		
 		//run forever, or until all the iterations have been completed
 		while(true) {

@@ -41,7 +41,7 @@ public class CMEMapElites {
 		this._gameName = gn;
 		this._coinFlip = coinFlip;
 		
-		rules = parseTutorialRules(parameters.get("mechanicsFile"));
+		rules = parseTutorialRules(parameters.get("tutorialFile"));
 		varNames = this.convertToRuleNames(rules);
 		Chromosome.SetStaticVar(seed, gn, gl, rules, varNames, Double.parseDouble(parameters.get("maxTreeDepth")));
 	}

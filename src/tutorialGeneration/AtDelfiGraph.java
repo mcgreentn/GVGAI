@@ -21,7 +21,6 @@ import tools.LevelAnalyzer;
 
 import org.graphstream.graph.*;
 import org.graphstream.graph.implementations.*;
-import org.graphstream.ui.*;
 import org.graphstream.ui.layout.Layout;
 import org.graphstream.ui.view.Viewer;
 import org.json.simple.JSONArray;

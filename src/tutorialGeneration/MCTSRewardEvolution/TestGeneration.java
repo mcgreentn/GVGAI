@@ -3,9 +3,12 @@ package tutorialGeneration.MCTSRewardEvolution;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 
 public class TestGeneration{
@@ -58,11 +61,24 @@ public class TestGeneration{
 	static int popNum = 10;
 	static int iterations = 5;
 	
+	//parse the parameters from the external file
+	private static HashMap<String, String> readParameters(String filename) throws IOException {
+		List<String> lines = Files.readAllLines(Paths.get("", filename));
+		HashMap<String, String> parameters = new HashMap<String, String>();
+		for(int i=0; i<lines.size(); i++) {
+			if(lines.get(i).trim().length() == 0) {
+				continue;
+			}
+			String[] parts = lines.get(i).split("=");
+			parameters.put(parts[0].trim(), parts[1].trim());
+		}
+		return parameters;
+	}
 	
 	public static void main(String[] args) throws IOException{
 		long startTime = System.nanoTime();
-		
-		CMEMapElites map = new CMEMapElites(gameName, gameLoc, seed, 0.5, "rules/mechanics_zelda.json", "8");
+		HashMap<String, String> parameters = TestGeneration.readParameters("MCTSRewardEvolutionParameters.txt");
+		CMEMapElites map = new CMEMapElites(gameName, gameLoc, seed, 0.5, parameters);
 		
 		
 		//initialize the 10 random chromosomes
