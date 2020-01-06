@@ -92,21 +92,26 @@ public class ADPChildRunner {
 		/////////////		START OF TUTORIAL LEVEL GENERATION   	/////////////////
 		Chromosome[] chromosomes = null;
 		
-		//send a ready signal
-		child.sendResponse();
-		
+
 		//run forever, or until all the iterations have been completed
 		while(true) {
 			try {
+				System.out.println("C"+ id + ": Waiting for awake signal...");
+				while(!child.checkAwakeSignal()) {
+					Thread.sleep(500);
+				}
+				//send a ready signal
+				child.sendResponse();
+				System.out.println("C"+ id + ": Awake signal sent...");
+				
 				// 1c) Wait for files to be written by the parent
 				System.out.println("C" + id + ": Waiting for parent to finish writing input files...");
 				while(!child.checkChromosomes()) {
 				    Thread.sleep(500);
 				}
-				Thread.sleep(1000);
 				
-				// 2c) Read in chromosomes levels from files in the input folder
-				System.out.println("C" + id + ": Reading in levels...");
+				// 2c) Read in chromosomes from files in the input folder
+				System.out.println("C" + id + ": Reading in chromosomes...");
 				String[] levels = child.readChromosomes();
 				
 				// 3c) Initialize new chromosomes
@@ -116,27 +121,27 @@ public class ADPChildRunner {
 				    //System.out.println(levels[i]);
 				    chromosomes[i].fileInit(levels[i]);
 				}
-				
+				// 3.5c) Clear the input files
+				System.out.println("C" + id+ ": Clearing input files");
+				child.clearInputFiles();
 				// 4c) Run simulation and calculate results
 				int index = 0;
 				for(Chromosome c:chromosomes) {
-				    System.out.println("\t C" + id + ": Running Chromosome number: \t" + ++index + "/" + size + " (#" + (index+(id*size)) + ")");
+				    System.out.println("\t C" + id + ": Running Chromosome number: \t" + ++index + "/" + chromosomes.length + " (#" + (index+(id*chromosomes.length)) + ")");
 				    c.calculateResults(runner, id);
 				}
-				
-				// 4.5c) delete old input files
-				child.clearInputFiles();
+			
 				
 				// 5c) Write results to the output folder
 				System.out.println("C" + id + ": Writing chromosome results...");
 				String[] values = new String[chromosomes.length];
-				for(int i=0;i<chromosomes.length;i++) {
-					values[i] = chromosomes[i].toOutputFile();
-				}
-				child.writeResults(values);
+//				for(int i=0;i<chromosomes.length;i++) {
+//					values[i] = chromosomes[i].toOutputFile();
+//				}
+				child.writeResults(chromosomes);
 				
-				// 6c) Repeat back to (1c)
-				
+				// 6c) send response
+				child.sendResponse();
 				
 			}catch(Exception e) {
 				e.printStackTrace();

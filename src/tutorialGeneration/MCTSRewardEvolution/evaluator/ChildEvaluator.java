@@ -11,6 +11,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import tutorialGeneration.MCTSRewardEvolution.Chromosome;
+
 public class ChildEvaluator {
 	private int _id;
 	private int _size;
@@ -32,16 +34,18 @@ public class ChildEvaluator {
 		if(!file.exists()) {
 			return false;
 		}		
+		file.delete();
 		return true;
 	}
 	
-	public boolean checkStartRequest() {
-		File file = new File(this._signalFolder + "0.request");
+	public boolean checkAwakeSignal() {
+		File file = new File(this._signalFolder + "awake.request");
 		if(!file.exists()) {
 			return false;
 		}
 		return true;
 	}
+	
 
 	//read in the string input chromosomes produced by the parents
 	public String[] readChromosomes() throws IOException {
@@ -54,6 +58,7 @@ public class ChildEvaluator {
 				toDo.add(f);
 			}	
 		}
+		this._size = toDo.size();
 		String[] result = new String[toDo.size()];
 		for(int i=0; i<this._size; i++) {
 			result[i] = String.join("\n", Files.readAllLines(toDo.get(i).toPath()));
@@ -62,21 +67,27 @@ public class ChildEvaluator {
 	}
 
 	//write the results (age, hasborder, constraints, fitness, dimension, and level) back to the parent to assign
-	public void writeResults(String[] values) throws FileNotFoundException, UnsupportedEncodingException {
-		int startIndex = this._id * this._size;
+	public void writeResults(Chromosome[] values) throws FileNotFoundException, UnsupportedEncodingException {
+		// write the chromosomes back based on their ID
+		
 		for(int i=0; i<values.length; i++) {
-			PrintWriter writer = new PrintWriter(this._outputFolder + (startIndex + i) + ".txt", "UTF-8");
-			writer.print(values[i]);
+			
+			PrintWriter writer = new PrintWriter(this._outputFolder + values[i].getIndex() + ".txt", "UTF-8");
+			writer.print(values[i].toOutputFile());
 			writer.close();
 		}
 	}
 
 	//delete all the input files that were used to make the chromosomes
 	public void clearInputFiles() {
-		int startIndex = this._id * this._size;
-		for(int i=0; i<this._size; i++) {
-			File f = new File(this._inputFolder + (startIndex + i) + ".txt");
-			f.delete();
+		// look thru all files and find the ones that have the right id
+		File dir = new File(this._inputFolder);
+		List<File> toDo = new ArrayList<File>();
+		for(File f : dir.listFiles()) {
+			String id = f.getName().split("_")[0];
+			if (Integer.parseInt(id) == this._id) {
+				f.delete();
+			}	
 		}
 	}
 	

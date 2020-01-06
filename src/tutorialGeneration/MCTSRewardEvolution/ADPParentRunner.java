@@ -53,9 +53,6 @@ public class ADPParentRunner {
 		return parameters;
 	}
 	
-	private static void assignToChildren(List<Chromosome> chromes) {
-		
-	}
 	//parse csv file
 	public static HashMap<Integer, String[]> readGamesCSV(String csv) throws IOException{
 		HashMap<Integer, String[]> gameSet = new HashMap<Integer, String[]>();
@@ -142,22 +139,16 @@ public class ADPParentRunner {
 		//delete old folders 
 		System.out.println("P: Resetting input/output folders...");
 		resetAllFolders(parameters.get("inputFolder"), parameters.get("outputFolder"), parameters.get("signalFolder"));
-		
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		// check for responses
-		int childCount = parent.checkChildrenAlive();
-		
-		
+		int childCount = 0;
+
+
+			// check for children alive, TODO move this somewhere else probably
+
 		//run forever, or until all the iterations have been completed
 		while(true) {
 			try {
-				// make blocks and start messages
-				
+				// send awake signal and wait 5 seconds for responses
+				childCount = callOut(parent);
 				System.out.println("\n\nITERATION #" + iteration + "/" + maxIterations);
 				
 				// 1p) export the chromosomes to the files for the children
@@ -165,18 +156,16 @@ public class ADPParentRunner {
 				System.out.println("P: Writing in files for children...");
 				String[] levelOut = new String[chromosomes.length];
 				for(int i=0;i<chromosomes.length;i++) {
-					levelOut[i] = chromosomes[i].toInputFile(i);
+					levelOut[i] = chromosomes[i].toInputFile(i, 0);
 				}
 				
 				// 2p-5p) wait for the children to return results from running the AI agent
 				parent.writeChromosomes(levelOut, childCount);
 				// delete block
 				System.out.println("P: Waiting for children to finish...");
-				Thread.sleep(50000);
-				while(!parent.checkChromosomes(Integer.parseInt(parameters.get("childCount")))) {
+				while(!parent.checkChromosomes(childCount)) {
 					Thread.sleep(500);
 				}
-				Thread.sleep(1000);
 				
 				// 6p) read in the results of the child output chromosomes
 				System.out.println("P: Reading children results...");
@@ -184,18 +173,39 @@ public class ADPParentRunner {
 				for(int i=0; i<chromosomes.length; i++) {
 					chromosomes[i].saveResults(values[i]);
 				}
-				
-				// 7p) assign the chromosomes to the MAP
+								
 				System.out.println("P: Checking population for further assessment...");
 				List<Chromosome> furtherReview = map.checkForFurtherReview(chromosomes);
-				// do the further review
+				parent.clearOutputFiles(chromosomes.length);
+				if (furtherReview.size() > 0) {
+					
+					// 6.5p) do the further review
+					levelOut = new String[furtherReview.size()];
+					for(int i=0;i<furtherReview.size();i++) {
+						for (int j = 0; j < iteration; j++) {
+							levelOut[i] = furtherReview.get(i).toInputFile(i, j);
+						}
+					}
+					
+					callOut(parent);
+					
+					System.out.println("P: Assigning further assessment...");
+					parent.writeChromosomes(levelOut, childCount);
+					System.out.println("P: Waiting for children to finish...");
+					while(!parent.checkChromosomes(childCount)) {
+						Thread.sleep(500);
+					}
+					// TODO combine the chromosome runs with the same index into one merged chromosome again
+
+					values = parent.assignChromosomes(furtherReview.size()*iteration);
+					
+				}
 				
-				// TODO check to see if any chromomsomes need to be run more before assignment
+				
+				// 7p) assign the chromosomes to the MAP
 				System.out.println("P: Assigning chromosomes to the MAP...");
 				map.assignChromosomes(chromosomes);
 				
-				// 7.5p) delete the old output files
-				parent.clearOutputFiles(chromosomes.length);
 				
 				// 8p) write map results and info to the results folder (done every x iterations)
 				if(iteration % exportFreq == 0 || iteration == 0) {
@@ -223,5 +233,37 @@ public class ADPParentRunner {
 			}
 		}
 		
+	}
+	
+	public static int callOut(ParentEvaluator parent) {
+		System.out.println("P: Calling out into the void...");
+		parent.sendAwakeRequest();
+		int childCount = 0;
+		do {
+			try {
+				Thread.sleep(5000);
+			} catch(InterruptedException e1) {
+				e1.printStackTrace();
+
+			}
+			childCount = parent.checkChildrenAlive();
+
+		}while (childCount < 1);
+		// make blocks and start messages
+		childCount += parent.checkChildrenAlive();
+		parent.removeAwakeSignal();
+		System.out.println("Children alive: " + childCount);
+		
+		return childCount;
+	}
+	
+	public static Chromosome[] mergeChromes(String[] values, Chromosome[] oldChromosomes) {
+		Chromosome[] newChromosomes = new Chromosome[oldChromosomes.length];
+		
+		for(String val : values) {
+			String[] valA = val.split("\n");
+			oldChromosomes[Integer.parseInt(valA[5])].addFitness(Double.parseDouble(valA[2]));
+		}
+		return newChromosomes;
 	}
 }

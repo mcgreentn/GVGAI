@@ -39,6 +39,10 @@ public class ParentEvaluator {
             	writer.close();
             }
             System.out.println("** Child " + (i) + " will evaluate " + (chromesPerChild + extra) + " chromosomes.");
+            // send request signal
+            PrintWriter writer = new PrintWriter(this._signalFolder + i + ".request");
+            writer.print("");
+            writer.close();
         }
 	}
 
@@ -47,7 +51,7 @@ public class ParentEvaluator {
 		List<File> signals = new ArrayList<File>();
 		for(int i=0; i<size; i++) {
 			File f = new File(this._signalFolder + i + ".response");
-			if(f.exists()) {
+			if(!f.exists()) {
 				return false;
 			}
 			signals.add(f);
@@ -63,14 +67,23 @@ public class ParentEvaluator {
 		int i = 0;
 		while(true) {
 			File f = new File(this._signalFolder + i + ".response");
-			i++;
+
 			if(!f.exists()) {
 				break;
 			}
+			i++;
 			f.delete();
 		}
+
 		// delete all and return
 		return i;
+	}
+	
+	public void removeAwakeSignal() {
+		File f = new File(this._signalFolder + "awake.request");
+		if (f.exists()) {
+			f.delete();
+		}
 	}
 
 	//read back in the children's output results
@@ -81,6 +94,7 @@ public class ParentEvaluator {
 		}
 		return results;
 	}
+	
 
 	//delete the old output chromosomes files
 	public void clearOutputFiles(int size) {
@@ -101,4 +115,15 @@ public class ParentEvaluator {
 			}
 		}
 	}
+	
+	public void sendAwakeRequest() {
+		File f = new File(this._signalFolder + "awake.request");
+		try {
+			f.createNewFile();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 }

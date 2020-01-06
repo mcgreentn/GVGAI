@@ -70,10 +70,10 @@ public class CMEMapElites {
 				}
 				
 			}
-		}
-		
+		}	
 		return toEval;
 	}
+	
 	//assigns the new set of chromosomes to the map elites hash if their fitness scores are better than the saved chromosomes 
 	public void assignChromosomes(Chromosome[] csomes) {
 		for(Chromosome c : csomes) {
