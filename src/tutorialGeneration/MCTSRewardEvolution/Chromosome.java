@@ -69,6 +69,7 @@ public class Chromosome implements Comparable<Chromosome>{
 		private List<Double> fitnesses;
 		private int index;
 		private int playthrough;
+		private int evalCount;
 	
 	//sets the static variables for the Chromsome class - shared between all chromosomes
 	public static void SetStaticVar(Random seed, String gn, String gp, List<GameEvent> rules, HashSet<String> varNames, double maxDepth) {
@@ -88,7 +89,7 @@ public class Chromosome implements Comparable<Chromosome>{
 		this._dimensions = null;
 		this._age = 0;
 		this.fitnesses = new ArrayList<Double>();
-		
+		this.evalCount = 1;
 		this.randomInit();
 	}
 
@@ -99,7 +100,7 @@ public class Chromosome implements Comparable<Chromosome>{
 		this._dimensions = null;
 		this._age = 0;
 		this.fitnesses = new ArrayList<Double>();
-
+		this.evalCount = 1;
 		this.rewardEquation = rewardEquation;
 	}
 
@@ -323,8 +324,13 @@ public class Chromosome implements Comparable<Chromosome>{
 	public void incrementAge() {
 		this._age++;
 	}
-
-
+	public void setEvalCount(int count) {
+		this.evalCount = count;
+	}
+	public void setIndex(int index) {
+		this.index = index;
+	}
+	
 	///////////   HELPER FUNCTIONS   ////////////
 	//gets the index of a character in an array (helper function)
 	public int indexOf(char[] arr, char elem) {
@@ -362,4 +368,9 @@ public class Chromosome implements Comparable<Chromosome>{
 	public int getPlaythrough() {
 		return this.playthrough;
 	}
+	
+	public int getEvalCount() {
+		return this.evalCount;
+	}
+
 }

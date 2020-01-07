@@ -51,14 +51,15 @@ public class CMEMapElites {
 		Chromosome[] randos = new Chromosome[batchSize];
 		for(int i=0;i<batchSize;i++) {
 			randos[i] = new Chromosome();
+			randos[i].setIndex(i);
 		}
 		
 		return randos;
 	}
 	
-	public HashMap<Chromosome, Integer> checkForFurtherReview(Chromosome[] csomes) {
+	public ArrayList<Tuple> checkForFurtherReview(Chromosome[] csomes) {
 		// loop thru all chromosomes to see if they have a better average fitness than an elite
-		HashMap<Chromosome, Integer> toEval = new HashMap<Chromosome, Integer>();
+		ArrayList<Tuple> toEval = new ArrayList<Tuple>();
 		for(Chromosome c: csomes) {
 			int[] raw_dimen = c._dimensions; 
 			String dimen = dimensionsString(raw_dimen);
@@ -66,7 +67,9 @@ public class CMEMapElites {
 			if(_map.containsKey(dimen)) {
 				Chromosome set_c = _map.get(dimen);
 				if(set_c.compareTo(c) < 0) {
-					toEval.put(c, set_c.get_age());
+					Tuple t = new Tuple(c, set_c.getEvalCount() + 1);
+					toEval.add(t);
+					c.setEvalCount(set_c.getEvalCount() + 1);
 				}
 				
 			}
@@ -121,6 +124,10 @@ public class CMEMapElites {
 			
 			//add it to the next generation
 			nextGen[b] = mutChromo;
+		}
+		
+		for(int i = 0; i < nextGen.length; i++) {
+			nextGen[i].setIndex(i);
 		}
 		
 		return nextGen;
@@ -212,5 +219,22 @@ public class CMEMapElites {
 			bw.close();
 		}
 	}
+
 	
+}
+
+class Tuple {
+	private int count;
+	private Chromosome chromosome;
+	public Tuple(Chromosome c, int co) {
+		this.chromosome = c;
+		this.count = co;
+	}
+	
+	public int getCount() {
+		return count;
+	}
+	public Chromosome getChrome() {
+		return chromosome;
+	}
 }

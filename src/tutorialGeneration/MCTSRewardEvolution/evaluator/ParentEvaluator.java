@@ -38,7 +38,7 @@ public class ParentEvaluator {
             	writer.print(chromosomes[chromosomeCounter++]);
             	writer.close();
             }
-            System.out.println("** Child " + (i) + " will evaluate " + (chromesPerChild + extra) + " chromosomes.");
+            System.out.println("** Child " + (i) + " will perform " + (chromesPerChild + extra) + " tasks.");
             // send request signal
             PrintWriter writer = new PrintWriter(this._signalFolder + i + ".request");
             writer.print("");
@@ -87,10 +87,15 @@ public class ParentEvaluator {
 	}
 
 	//read back in the children's output results
-	public String[] assignChromosomes(int size) throws IOException {
-		String[] results = new String[size];
-		for(int i=0; i<size; i++) {
-			results[i] = String.join("\n", Files.readAllLines(Paths.get(this._outputFolder, i + ".txt")));
+	public String[] assignChromosomes() throws IOException {
+		File output = new File(this._outputFolder);
+		
+		// get all files in output
+		File[] listOfFiles = output.listFiles();
+		String[] results = new String[listOfFiles.length];
+
+		for(int i = 0; i < listOfFiles.length; i++) {
+			results[i] = String.join("\n", Files.readAllLines(listOfFiles[i].toPath()));
 		}
 		return results;
 	}

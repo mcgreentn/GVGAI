@@ -10,8 +10,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import tutorialGeneration.MCTSRewardEvolution.evaluator.ParentEvaluator;
@@ -156,7 +158,7 @@ public class ADPParentRunner {
 				System.out.println("P: Writing in files for children...");
 				String[] levelOut = new String[chromosomes.length];
 				for(int i=0;i<chromosomes.length;i++) {
-					levelOut[i] = chromosomes[i].toInputFile(i, 0);
+					levelOut[i] = chromosomes[i].toInputFile(chromosomes[i].getIndex(), 0);
 				}
 				
 				// 2p-5p) wait for the children to return results from running the AI agent
@@ -169,23 +171,28 @@ public class ADPParentRunner {
 				
 				// 6p) read in the results of the child output chromosomes
 				System.out.println("P: Reading children results...");
-				String[] values = parent.assignChromosomes(chromosomes.length);
+				String[] values = parent.assignChromosomes();
 				for(int i=0; i<chromosomes.length; i++) {
 					chromosomes[i].saveResults(values[i]);
 				}
 								
 				System.out.println("P: Checking population for further assessment...");
-				HashMap<Chromosome, Integer> furtherReview = map.checkForFurtherReview(chromosomes);
+				ArrayList<Tuple> furtherReview = map.checkForFurtherReview(chromosomes);
 				parent.clearOutputFiles(chromosomes.length);
 				if (furtherReview.size() > 0) {
 					
 					// 6.5p) do the further review
 					levelOut = new String[furtherReview.size()];
-					for(int i=0;i<furtherReview.size();i++) {
-						for (int j = 0; j < iteration; j++) {
-							levelOut[i] = furtherReview.get(i).toInputFile(i, j);
-						}
-					}
+
+					int i = 0;
+			        for (Tuple mapElement : furtherReview) { 
+			            Chromosome chrome = (Chromosome) mapElement.getChrome(); 
+			            int value = (int) mapElement.getCount();
+			            for(int j = 0; j < value; j++) {
+			            	levelOut[i] = chrome.toInputFile(chrome.getIndex(), j);
+			            }
+			            i++;
+			        } 
 					
 					callOut(parent);
 					
@@ -197,7 +204,7 @@ public class ADPParentRunner {
 					}
 					// TODO combine the chromosome runs with the same index into one merged chromosome again
 
-					values = parent.assignChromosomes(furtherReview.size()*iteration);
+					values = parent.assignChromosomes();
 					chromosomes = mergeChromes(values, chromosomes);
 					
 				}
