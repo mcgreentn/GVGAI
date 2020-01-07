@@ -182,17 +182,19 @@ public class ADPParentRunner {
 				if (furtherReview.size() > 0) {
 					
 					// 6.5p) do the further review
-					levelOut = new String[furtherReview.size()];
+					// TODO change this to a list, to be more dynamic
+					ArrayList<String> outTemp = new ArrayList<String>();
+//					levelOut = new String[furtherReview.size()];
 
 					int i = 0;
-			        for (Tuple mapElement : furtherReview) { 
-			            Chromosome chrome = (Chromosome) mapElement.getChrome(); 
-			            int value = (int) mapElement.getCount();
-			            for(int j = 0; j < value; j++) {
-			            	levelOut[i] = chrome.toInputFile(chrome.getIndex(), j);
+			        for (Tuple tup : furtherReview) { 
+			            Chromosome chrome = tup.getChrome(); 
+			            for(int j = 0; j < tup.getCount(); j++) {
+			            	outTemp.add(chrome.toInputFile(chrome.getIndex(), j));
+			            	i++;
 			            }
-			            i++;
 			        } 
+			        levelOut = outTemp.toArray(levelOut);
 					
 					callOut(parent);
 					
