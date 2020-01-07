@@ -175,7 +175,7 @@ public class ADPParentRunner {
 				}
 								
 				System.out.println("P: Checking population for further assessment...");
-				List<Chromosome> furtherReview = map.checkForFurtherReview(chromosomes);
+				HashMap<Chromosome, Integer> furtherReview = map.checkForFurtherReview(chromosomes);
 				parent.clearOutputFiles(chromosomes.length);
 				if (furtherReview.size() > 0) {
 					
@@ -198,6 +198,7 @@ public class ADPParentRunner {
 					// TODO combine the chromosome runs with the same index into one merged chromosome again
 
 					values = parent.assignChromosomes(furtherReview.size()*iteration);
+					chromosomes = mergeChromes(values, chromosomes);
 					
 				}
 				

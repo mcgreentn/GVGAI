@@ -56,9 +56,9 @@ public class CMEMapElites {
 		return randos;
 	}
 	
-	public List<Chromosome> checkForFurtherReview(Chromosome[] csomes) {
+	public HashMap<Chromosome, Integer> checkForFurtherReview(Chromosome[] csomes) {
 		// loop thru all chromosomes to see if they have a better average fitness than an elite
-		List<Chromosome> toEval = new ArrayList<Chromosome>();
+		HashMap<Chromosome, Integer> toEval = new HashMap<Chromosome, Integer>();
 		for(Chromosome c: csomes) {
 			int[] raw_dimen = c._dimensions; 
 			String dimen = dimensionsString(raw_dimen);
@@ -66,7 +66,7 @@ public class CMEMapElites {
 			if(_map.containsKey(dimen)) {
 				Chromosome set_c = _map.get(dimen);
 				if(set_c.compareTo(c) < 0) {
-					toEval.add(c);
+					toEval.put(c, set_c.get_age());
 				}
 				
 			}
