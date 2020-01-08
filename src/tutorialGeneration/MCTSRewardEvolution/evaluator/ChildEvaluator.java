@@ -72,7 +72,7 @@ public class ChildEvaluator {
 		
 		for(int i=0; i<values.length; i++) {
 			
-			PrintWriter writer = new PrintWriter(this._outputFolder + values[i].getIndex() + ".txt", "UTF-8");
+			PrintWriter writer = new PrintWriter(this._outputFolder + this._id + "_" + i + ".txt", "UTF-8");
 			writer.print(values[i].toOutputFile());
 			writer.close();
 		}

@@ -182,10 +182,9 @@ public class ADPParentRunner {
 				if (furtherReview.size() > 0) {
 					
 					// 6.5p) do the further review
-					// TODO change this to a list, to be more dynamic
 					ArrayList<String> outTemp = new ArrayList<String>();
-//					levelOut = new String[furtherReview.size()];
-
+//					
+					
 					int i = 0;
 			        for (Tuple tup : furtherReview) { 
 			            Chromosome chrome = tup.getChrome(); 
@@ -194,6 +193,7 @@ public class ADPParentRunner {
 			            	i++;
 			            }
 			        } 
+			        levelOut = new String[furtherReview.size()];
 			        levelOut = outTemp.toArray(levelOut);
 					
 					callOut(parent);
@@ -204,10 +204,10 @@ public class ADPParentRunner {
 					while(!parent.checkChromosomes(childCount)) {
 						Thread.sleep(500);
 					}
-					// TODO combine the chromosome runs with the same index into one merged chromosome again
+					// combine the chromosome runs with the same index into one merged chromosome again
 
 					values = parent.assignChromosomes();
-					chromosomes = mergeChromes(values, chromosomes);
+					mergeChromes(values, chromosomes);
 					
 				}
 				
