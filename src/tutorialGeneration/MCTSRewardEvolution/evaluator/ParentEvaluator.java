@@ -9,6 +9,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ParentEvaluator {
@@ -23,33 +24,35 @@ public class ParentEvaluator {
 	}
 
 	//write the input chromosomes (age, hasborder, and level) for the child to use and run
-	public void writeChromosomes(String[] chromosomes, int childCount) throws FileNotFoundException, UnsupportedEncodingException {
+	public void writeChromosomes(String[] chromosomes, int[] children) throws FileNotFoundException, UnsupportedEncodingException {
 		// how many chromosomes per child
-		int chromesPerChild = chromosomes.length / (childCount);
-		int remainingChromes = chromosomes.length % (childCount);
+		int chromesPerChild = chromosomes.length / (children.length);
+		int remainingChromes = chromosomes.length % (children.length);
 		int chromosomeCounter = 0;
 		
-        for (int i = 0; i < childCount; i++)
+		int count = 0;
+        for (int child : children)
         {
-            int extra = (i < remainingChromes) ? 1:0;
+            int extra = (count < remainingChromes) ? 1:0;
             // loop through the chromes
             for(int j = 0; j < chromesPerChild + extra; j++) {
-            	PrintWriter writer = new PrintWriter(this._inputFolder + (i) + "_" + (chromosomeCounter) + ".txt", "UTF-8");
+            	PrintWriter writer = new PrintWriter(this._inputFolder + (child) + "_" + (chromosomeCounter) + ".txt", "UTF-8");
             	writer.print(chromosomes[chromosomeCounter++]);
             	writer.close();
             }
-            System.out.println("** Child " + (i) + " will perform " + (chromesPerChild + extra) + " tasks.");
+            System.out.println("** Child " + (child) + " will perform " + (chromesPerChild + extra) + " tasks.");
             // send request signal
-            PrintWriter writer = new PrintWriter(this._signalFolder + i + ".request");
+            PrintWriter writer = new PrintWriter(this._signalFolder + child + ".request");
             writer.print("");
             writer.close();
+            count++;
         }
 	}
 
 	//check if all of the children have finished running their simulations
-	public boolean checkChromosomes(int size) {
+	public boolean checkChromosomes(int[] children) {
 		List<File> signals = new ArrayList<File>();
-		for(int i=0; i<size; i++) {
+		for(int i : children) {
 			File f = new File(this._signalFolder + i + ".response");
 			if(!f.exists()) {
 				return false;
@@ -63,20 +66,26 @@ public class ParentEvaluator {
 		return true;
 	}
 	
-	public int checkChildrenAlive() {
+	public int[] checkChildrenAlive() {
 		int i = 0;
-		while(true) {
-			File f = new File(this._signalFolder + i + ".response");
-
-			if(!f.exists()) {
-				break;
+		File childrenDir = new File(this._signalFolder);
+		File[] childrenFiles = childrenDir.listFiles();
+		ArrayList<Integer> childrenList = new ArrayList<Integer>();
+		for (File child : childrenFiles) {
+			if (child.getName().contains("response")){
+				String name = child.getName();
+				name = name.substring(0, name.indexOf("."));
+				childrenList.add(Integer.parseInt(name));
+				child.delete();
+				i++;
 			}
-			i++;
-			f.delete();
 		}
-
-		// delete all and return
-		return i;
+		// Wacky transformations because java is java
+		Integer[] tempChildren = new Integer[i];
+		tempChildren = childrenList.toArray(tempChildren);
+		int[] children = Arrays.stream(tempChildren).mapToInt(Integer::intValue).toArray();
+		Arrays.sort(children);
+		return children;
 	}
 	
 	public void removeAwakeSignal() {

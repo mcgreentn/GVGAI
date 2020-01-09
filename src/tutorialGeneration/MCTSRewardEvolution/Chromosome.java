@@ -111,8 +111,13 @@ public class Chromosome implements Comparable<Chromosome>{
 	public void randomInit() {
 		try {
 			this.rewardEquation = EvEqT.generateRandomTreeEquation(Chromosome._eParser, (int) Chromosome._maxDepth);
+			System.out.println("Random Init Before: " + this.rewardEquation.getTreeDepth());
+			System.out.println("Random Init Equation: " + this.rewardEquation.toString());
 			this.rewardEquation = EvEqT.simplifyTree(Chromosome._eParser, this.rewardEquation);
-//			this.rewardEquation = Chromosome._eParser.parse("divide(rand(inv(-0.07142857142857142),ceil(withkey monsterQuick KillSprite)),pow(min(min(mod(mul(-20.0,monsterSlow wall StepBack),ln(-15.0)),-0.05263157894736842),monsterSlow wall StepBack),sub(mul(add(-10.0,monsterQuick monsterNormal StepBack),0.3333333333333333),sin(divide(0.14285714285714285,nokey monsterQuick KillSprite)))))");
+			System.out.println("Random Init After: " + this.rewardEquation.getTreeDepth());
+			System.out.println("Random Init Equation: " + this.rewardEquation.toString());
+			calculateDimensions();
+			System.out.println("Random Init Dimensions: " + this._dimensions[0]);
 		} catch (Exception e) {
 			e.printStackTrace();
 		};
@@ -182,10 +187,9 @@ public class Chromosome implements Comparable<Chromosome>{
 		}
 		average = average / (levelCount * playthroughCount);
 		
-		this._age++; //increment the age (the chromosome is older now that it has been run)
 		setConstraints(0); 	//set the constraints (win or lose)
-		this._fitness = average;		//set the fitness
-		calculateDimensions(id);							//set the dimensions
+		this._fitness = average / (levelCount * playthroughCount);		//set the fitness
+		calculateDimensions();							//set the dimensions
 		
 	}
 
@@ -199,17 +203,14 @@ public class Chromosome implements Comparable<Chromosome>{
 	}
 
 	// calculates chromosomes dimensions based on the depth of the equation tree
-	private void calculateDimensions(int id) {
+	public void calculateDimensions() {
 		//System.out.println("calculating dimensions...");
 		
 		//create a new dimension set based on the size of max tree depth and set all values to 0
-		int x = (int) Chromosome._maxDepth;
-		this._dimensions = new int[x];
-		for(int d=0;d<this._dimensions.length;d++) {
-			this._dimensions[d] = 0;
-		}
+		this._dimensions = new int[1];
+		
 		// dimension = tree depth
-		this._dimensions[this.rewardEquation.getTreeDepth() - 1] = 1;
+		this._dimensions[0] = this.rewardEquation.getTreeDepth() - 1;
 	}
 	
 	
@@ -237,7 +238,13 @@ public class Chromosome implements Comparable<Chromosome>{
 					// Insert a new node to a clone copy of the input equation
 					this.rewardEquation = EvEqT.insertNode(Chromosome._eParser, this.rewardEquation, (int) Chromosome._maxDepth);
 				}
+				System.out.println("Mutation Before: " + this.rewardEquation.getTreeDepth());
+				System.out.println("Mutation Equation: " + this.rewardEquation.toString());
 				this.rewardEquation = EvEqT.simplifyTree(Chromosome._eParser, this.rewardEquation);
+				System.out.println("Mutation After: " + this.rewardEquation.getTreeDepth());
+				System.out.println("Mutation Equation: " + this.rewardEquation.toString());
+				calculateDimensions();
+				System.out.println("Mutation Dimensions: " + this._dimensions[0]);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

@@ -141,7 +141,7 @@ public class ADPParentRunner {
 		//delete old folders 
 		System.out.println("P: Resetting input/output folders...");
 		resetAllFolders(parameters.get("inputFolder"), parameters.get("outputFolder"), parameters.get("signalFolder"));
-		int childCount = 0;
+		int[] children;
 
 
 			// check for children alive, TODO move this somewhere else probably
@@ -150,7 +150,7 @@ public class ADPParentRunner {
 		while(true) {
 			try {
 				// send awake signal and wait 5 seconds for responses
-				childCount = callOut(parent);
+				children = callOut(parent);
 				System.out.println("\n\nITERATION #" + iteration + "/" + maxIterations);
 				
 				// 1p) export the chromosomes to the files for the children
@@ -162,10 +162,10 @@ public class ADPParentRunner {
 				}
 				
 				// 2p-5p) wait for the children to return results from running the AI agent
-				parent.writeChromosomes(levelOut, childCount);
+				parent.writeChromosomes(levelOut, children);
 				// delete block
 				System.out.println("P: Waiting for children to finish...");
-				while(!parent.checkChromosomes(childCount)) {
+				while(!parent.checkChromosomes(children)) {
 					Thread.sleep(500);
 				}
 				
@@ -196,12 +196,12 @@ public class ADPParentRunner {
 			        levelOut = new String[furtherReview.size()];
 			        levelOut = outTemp.toArray(levelOut);
 					
-					callOut(parent);
+					children = callOut(parent);
 					
 					System.out.println("P: Assigning further assessment...");
-					parent.writeChromosomes(levelOut, childCount);
+					parent.writeChromosomes(levelOut, children);
 					System.out.println("P: Waiting for children to finish...");
-					while(!parent.checkChromosomes(childCount)) {
+					while(!parent.checkChromosomes(children)) {
 						Thread.sleep(500);
 					}
 					// combine the chromosome runs with the same index into one merged chromosome again
@@ -245,26 +245,24 @@ public class ADPParentRunner {
 		
 	}
 	
-	public static int callOut(ParentEvaluator parent) {
+	public static int[] callOut(ParentEvaluator parent) {
 		System.out.println("P: Calling out into the void...");
 		parent.sendAwakeRequest();
-		int childCount = 0;
+		int[] children;
 		do {
 			try {
 				Thread.sleep(5000);
 			} catch(InterruptedException e1) {
 				e1.printStackTrace();
-
 			}
-			childCount = parent.checkChildrenAlive();
+			
+			children = parent.checkChildrenAlive();
 
-		}while (childCount < 1);
+		}while (children.length < 1);
 		// make blocks and start messages
-		childCount += parent.checkChildrenAlive();
 		parent.removeAwakeSignal();
-		System.out.println("Children alive: " + childCount);
-		
-		return childCount;
+		System.out.println("Children alive: " + children.length);
+		return children;
 	}
 	
 	public static Chromosome[] mergeChromes(String[] values, Chromosome[] oldChromosomes) {

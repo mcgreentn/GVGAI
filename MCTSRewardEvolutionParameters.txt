@@ -8,6 +8,6 @@ outputFolder = output/
 resultFolder = result/
 populationSize = 5
 coinFlip = 0.5
-exportFreq = 100
+exportFreq = 1
 maxTreeDepth = 10
 signalFolder = signals/
