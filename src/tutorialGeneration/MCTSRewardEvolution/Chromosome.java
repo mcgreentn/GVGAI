@@ -61,14 +61,16 @@ public class Chromosome implements Comparable<Chromosome>{
 	
 	//taken directly from Chromosome.java [MarioAI]		
 		protected double _constraints;	
-		protected double _fitness;
+		protected double _score;
+		protected double _win;
 		protected int[] _dimensions;		//binary vector for the interactions that occured for this chromosome
 		private int _age;					//age of the current chromosome
 		
 
 	//extended variables
 		protected EquationNode rewardEquation;
-		private List<Double> fitnesses;
+		private List<Double> scores;
+		private List<Double> wins;
 		private int index;
 		private int playthrough;
 		private int evalCount;
@@ -89,10 +91,12 @@ public class Chromosome implements Comparable<Chromosome>{
 	//constructor for random initialization
 	public Chromosome() {
 		this._constraints = 0;
-		this._fitness = 0;
+		this._score = 0;
+		this._win = 0;
 		this._dimensions = null;
 		this._age = 0;
-		this.fitnesses = new ArrayList<Double>();
+		this.scores = new ArrayList<Double>();
+		this.wins = new ArrayList<Double>();
 		this.evalCount = 1;
 		this.randomInit();
 	}
@@ -100,10 +104,12 @@ public class Chromosome implements Comparable<Chromosome>{
 	//constructor for cloning and mutation
 	public Chromosome(EquationNode rewardEquation) {
 		this._constraints = 0;
-		this._fitness = 0;
+		this._score = 0;
+		this._win = 0;
 		this._dimensions = null;
 		this._age = 0;
-		this.fitnesses = new ArrayList<Double>();
+		this.scores = new ArrayList<Double>();
+		this.wins = new ArrayList<Double>();		
 		this.evalCount = 1;
 		this.rewardEquation = rewardEquation;
 	}
@@ -115,13 +121,13 @@ public class Chromosome implements Comparable<Chromosome>{
 	public void randomInit() {
 		try {
 			this.rewardEquation = EvEqT.generateRandomTreeEquation(Chromosome._eParser, (int) Chromosome._maxDepth);
-			System.out.println("Random Init Before: " + this.rewardEquation.getTreeDepth());
-			System.out.println("Random Init Equation: " + this.rewardEquation.toString());
+//			System.out.println("Random Init Before: " + this.rewardEquation.getTreeDepth());
+//			System.out.println("Random Init Equation: " + this.rewardEquation.toString());
 			this.rewardEquation = EvEqT.simplifyTree(Chromosome._eParser, this.rewardEquation);
-			System.out.println("Random Init After: " + this.rewardEquation.getTreeDepth());
-			System.out.println("Random Init Equation: " + this.rewardEquation.toString());
-			calculateDimensions();
-			System.out.println("Random Init Dimensions: " + this._dimensions[0]);
+//			System.out.println("Random Init After: " + this.rewardEquation.getTreeDepth());
+//			System.out.println("Random Init Equation: " + this.rewardEquation.toString());
+//			calculateDimensions();
+//			System.out.println("Random Init Dimensions: " + this._dimensions[0]);
 		} catch (Exception e) {
 			e.printStackTrace();
 		};
@@ -130,48 +136,71 @@ public class Chromosome implements Comparable<Chromosome>{
 	}
 	
 	//overwrites the results from an already calculated chromosome of a child process
-	public void saveResults(String fileContents) {
+	public void parseOutputFile(String fileContents) {
 		String[] fileStuff = fileContents.split("\n");
 		
 		this._age = Integer.parseInt(fileStuff[0]);
 		this._constraints = Double.parseDouble(fileStuff[1]);
-		this._fitness = Double.parseDouble(fileStuff[2]);
+		this._score = Double.parseDouble(fileStuff[2]);
+		this._win = Double.parseDouble(fileStuff[3]);
 
 		
 		// take care of fitnesses array
-		String[] fit1 = fileStuff[3].replace("[", "").replace("]", "").split(",");
-		this.fitnesses.clear();
-		for(String s : fit1) {
-			this.fitnesses.add(Double.parseDouble(s));
+		String[] score1 = fileStuff[4].replace("[", "").replace("]", "").split(",");
+		this.scores.clear();
+		for(String s : score1) {
+			this.scores.add(Double.parseDouble(s));
+		}
+		String[] win1 = fileStuff[5].replace("[", "").replace("]", "").split(",");
+
+		this.wins.clear();
+		for(String s: win1) {
+			this.wins.add(Double.parseDouble(s));
 		}
 		
-		String[] d = fileStuff[4].split("");
+		String[] d = fileStuff[6].split("");
 		this._dimensions = new int[d.length];
 		for(int i=0;i<d.length;i++) {
 			this._dimensions[i] = Integer.parseInt(d[i]);
 		}
-		this.index = Integer.parseInt(fileStuff[5]);
-		this.playthrough = Integer.parseInt(fileStuff[6]);
+		this.index = Integer.parseInt(fileStuff[7]);
+		this.playthrough = Integer.parseInt(fileStuff[8]);
 	}
 	
-	public void addFitness(double fitness) {
-		fitnesses.add(fitness);
-		this._fitness = averageFitness();
+	public void addScore(double fitness) {
+		scores.add(fitness);
+		this._score = averageScores();
 	}
 	
-	public double averageFitness() {
+	public void addWin(double win) {
+		wins.add(win);
+		this._win = averageWins();
+	}
+	
+	public double averageScores() {
 		double average = 0.0;
-		for(Double fit : fitnesses) {
+		for(Double fit : scores) {
 			average += fit;
 		}
-		return average / fitnesses.size();
+		
+		return average / scores.size();
+	}
+	
+	public double averageWins() {
+		double average = 0.0;
+		for(Double fit : wins) {
+			average += fit;
+		}
+		
+		return average / wins.size();
 	}
 
 	// run a chromosome with an MCTS agent
 	public void calculateResults(String aiAgent, int id) throws IOException {
 
 		// run on all levels multiple times
-		double average = 0.0;
+		double avgScore = 0.0;
+		double avgWin = 0.0;
 		int levelCount = Chromosome._levelCount;
 		int playthroughCount = Chromosome._playthroughCount;
 		for (int i = 0; i < levelCount; i++) {
@@ -185,16 +214,19 @@ public class Chromosome implements Comparable<Chromosome>{
 				double win = results[0];
 				double score = results[1];
 				double runFitness = win * 0.7 + score * 0.3;
-				fitnesses.add(runFitness);
-				average += runFitness;
+				
+				scores.add(score);
+				wins.add(win);
+				avgScore += score;
+				avgWin += win;
 			}
 		}
 //		average = average / (levelCount * playthroughCount);
 		
 		setConstraints(0); 	//set the constraints (win or lose)
-		this._fitness = average / (levelCount * playthroughCount);		//set the fitness
-		calculateDimensions();							//set the dimensions
-		
+		this._score = avgScore / (levelCount * playthroughCount);		//set the fitness
+		this._win = avgWin / (levelCount * playthroughCount);
+		this.calculateDimensions();
 	}
 
 
@@ -242,13 +274,13 @@ public class Chromosome implements Comparable<Chromosome>{
 					// Insert a new node to a clone copy of the input equation
 					this.rewardEquation = EvEqT.insertNode(Chromosome._eParser, this.rewardEquation, (int) Chromosome._maxDepth);
 				}
-				System.out.println("Mutation Before: " + this.rewardEquation.getTreeDepth());
-				System.out.println("Mutation Equation: " + this.rewardEquation.toString());
+//				System.out.println("Mutation Before: " + this.rewardEquation.getTreeDepth());
+//				System.out.println("Mutation Equation: " + this.rewardEquation.toString());
 				this.rewardEquation = EvEqT.simplifyTree(Chromosome._eParser, this.rewardEquation);
-				System.out.println("Mutation After: " + this.rewardEquation.getTreeDepth());
-				System.out.println("Mutation Equation: " + this.rewardEquation.toString());
-				calculateDimensions();
-				System.out.println("Mutation Dimensions: " + this._dimensions[0]);
+//				System.out.println("Mutation After: " + this.rewardEquation.getTreeDepth());
+//				System.out.println("Mutation Equation: " + this.rewardEquation.toString());
+//				calculateDimensions();
+//				System.out.println("Mutation Dimensions: " + this._dimensions[0]);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -284,8 +316,10 @@ public class Chromosome implements Comparable<Chromosome>{
 		String output = "";
 		output += (this._age) + "\n";
 		output += (this._constraints) + "\n";
-		output += (this._fitness) + "\n";
-		output += (Arrays.toString(this.fitnesses.toArray())) + "\n";
+		output += (this._score) + "\n";
+		output += (this._win) + "\n"; 
+		output += (Arrays.toString(this.scores.toArray())) + "\n";
+		output += (Arrays.toString(this.wins.toArray())) + "\n";
 		for(int i=0;i<this._dimensions.length;i++) {output += ("" + this._dimensions[i]);} output += "\n";
 		output += (this.index) + "\n";
 		output += (this.playthrough);
@@ -301,7 +335,11 @@ public class Chromosome implements Comparable<Chromosome>{
 	 */
 	@Override
 	public int compareTo(Chromosome o) {
-		return (int) Math.signum(this._fitness - o._fitness);
+		int better = (int) Math.signum(this._win - o._win);
+		if (better == 0) {
+			better = (int) Math.signum(this._score - o._score);
+		}
+		return better;
 	}
 
 	//////////  GETTER FUNCTIONS  ///////////
@@ -313,22 +351,19 @@ public class Chromosome implements Comparable<Chromosome>{
 		return this._constraints;
 	}
 
-	public double getFitness() {
-//		return this._fitness;
-		// average the fitnesses together
-		double average = 0;
-		for(double fitness : fitnesses) {
-			average += fitness;
-		}
-		average /= fitnesses.size();
-		return average;
+	public double getScore() {
+		return this.averageScores();
+	}
+	
+	public double getWin() {
+		return this.averageWins();
 	}
 
 	public int[] getDimensions() {
 		return this._dimensions;
 	}
 	public int getFitnessLength() {
-		return this.fitnesses.size();
+		return this.scores.size();
 	}
 	
 	////////// SETTER FUNCTIONS ///////////
@@ -359,7 +394,6 @@ public class Chromosome implements Comparable<Chromosome>{
 	}
 
 
-	// TODO implement reading in reward 
 	public void fileInit(String string) {
 		// read in reward equation into this chromosome's reward equation
 		try {

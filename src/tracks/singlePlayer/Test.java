@@ -1,11 +1,21 @@
 package tracks.singlePlayer;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 
 import core.logging.Logger;
+import eveqt.EquationParser;
+import eveqt.EvEqT;
 import tools.Utils;
 import tracks.ArcadeMachine;
+import tracks.singlePlayer.advanced.boostedMCTS.Agent;
+import tutorialGeneration.MechanicParser;
+import tutorialGeneration.MCTSRewardEvolution.Chromosome;
+import video.basics.GameEvent;
+
 
 /**
  * Created with IntelliJ IDEA. User: Diego Date: 04/10/13 Time: 16:29 This is a
@@ -32,7 +42,7 @@ public class Test {
 		String[][] games = Utils.readGames(spGamesCollection);
 
 		//Game settings
-		boolean visuals = false;
+		boolean visuals = true;
 		int seed = new Random().nextInt();
 
 		// Game and level to play
@@ -50,9 +60,25 @@ public class Test {
 		// 1. This starts a game, in a level, played by a human.
 //		ArcadeMachine.playOneGame(game, level1, recordActionsFile, seed);
 
-		// 2. This plays a game in a level by the controller.
-		double[] results = ArcadeMachine.runOneGame(game, level1, visuals, sampleMCTSController, recordActionsFile, seed, 0);
-		System.out.println("");
+		// generates reward equation
+		try {
+			List<GameEvent> rules = parseTutorialRules("rules/mechanics_zelda.json");
+			HashSet<String> varNames = convertToRuleNames(rules);
+	
+			EquationParser parser = new EquationParser(new Random(), varNames, EvEqT.generateConstants(20, 1000));
+		
+			Agent._rewardEquation = parser.parse("divide(abs(sigmoid(inv(ln(neg(cos(monsterQuick wall StepBack)))))),sin(inv(floor(withkey monsterSlow KillSprite))))");
+			Agent._critPath = rules;
+			// 2. This plays a game in a level by the controller.
+			
+
+			double[] results = ArcadeMachine.runOneGame(game, level1, visuals, boostedMCTSController, recordActionsFile, seed, 0);
+			System.out.println("");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 
 		// 3. This replays a game from an action file previously recorded
 	//	 String readActionsFile = recordActionsFile;
@@ -88,4 +114,21 @@ public class Test {
 
 
     }
+
+	//sets the game interaction set (rules) for the dimensionality
+	private static List<GameEvent> parseTutorialRules(String mechanicFile) {
+		List<GameEvent> mechanics = MechanicParser.readMechFile(mechanicFile);
+
+		return mechanics;
+	}
+	
+	// Converts the raw mechanic info into strings for variables in the equation trees
+	private static HashSet<String> convertToRuleNames(List<GameEvent> mechanics) {
+		List<String> mechNames = new ArrayList<String>();
+		for (GameEvent event : mechanics) {
+			mechNames.add(event.toString());
+		}
+		HashSet<String> varSet = new HashSet<String>(mechNames);
+		return varSet;
+	}
 }

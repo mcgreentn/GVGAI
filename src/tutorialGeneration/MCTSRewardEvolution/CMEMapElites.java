@@ -82,7 +82,6 @@ public class CMEMapElites {
 	//assigns the new set of chromosomes to the map elites hash if their fitness scores are better than the saved chromosomes 
 	public void assignChromosomes(Chromosome[] csomes) {
 		for(Chromosome c : csomes) {
-			c.calculateDimensions();
 			int[] raw_dimen = c._dimensions;
 			String dimen = dimensionsString(raw_dimen);
 			
@@ -131,6 +130,7 @@ public class CMEMapElites {
 		
 		for(int i = 0; i < nextGen.length; i++) {
 			nextGen[i].setIndex(i);
+			nextGen[i].calculateDimensions();
 		}
 		
 		return nextGen;
@@ -182,12 +182,14 @@ public class CMEMapElites {
 		for(String k : keys) {
 			Chromosome l = this._map.get(k);
 			
-			str += ("Dimensions: [" + k + "]\n");
-			str += ("Age: " + l.get_age());
+			str += ("Dimensions: [" + k + "]");
+			str += ("\nAge: " + l.get_age());
+			str += ("\nEval Count: " + l.getEvalCount());
 			str += ("\nConstraints: " + l.getConstraints());
-			str += ("\nFitness: " + l.getFitness());
-			str += "\nLevel: \n";
-			str += (l.toString());
+			str += ("\nScore: " + l.getScore());
+			str += ("\nWin: " + l.getWin());
+			str += "\nequation: \n";
+			str += (l.rewardEquation);
 			
 			str += "\n\n";
 		} 
@@ -208,11 +210,12 @@ public class CMEMapElites {
 			Chromosome l = this._map.get(k);
 			String str = "";
 			
-			str += ("Dimensions: [" + k + "]\n");
-			str += ("Age: " + l.get_age());
+			str += ("Dimensions: [" + k + "]");
+			str += ("\nAge: " + l.get_age());
 			str += ("\nEval Count: " + l.getEvalCount());
 			str += ("\nConstraints: " + l.getConstraints());
-			str += ("\nFitness: " + l.getFitness());
+			str += ("\nScore: " + l.getScore());
+			str += ("\nWin: " + l.getWin());
 			str += "\nequation: \n";
 			str += (l.rewardEquation);
 			

@@ -98,7 +98,7 @@ public class TestGeneration{
 				//System.out.println(String.join(" ", c._allChar));
 				c.calculateResults(aiRunner, 0);
 				System.out.println("Constraints score: " + c._constraints);
-				System.out.println("Fitness score: " + c._fitness);
+				System.out.println("Fitness score: " + c._score);
 				System.out.println("Dimension vector: " + Arrays.toString(c._dimensions));
 				System.out.println("");
 			}

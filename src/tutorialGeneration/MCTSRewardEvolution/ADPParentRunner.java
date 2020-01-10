@@ -173,7 +173,7 @@ public class ADPParentRunner {
 				System.out.println("P: Reading children results...");
 				String[] values = parent.assignChromosomes();
 				for(int i=0; i<chromosomes.length; i++) {
-					chromosomes[i].saveResults(values[i]);
+					chromosomes[i].parseOutputFile(values[i]);
 				}
 								
 				System.out.println("P: Checking population for further assessment...");
@@ -265,13 +265,24 @@ public class ADPParentRunner {
 		return children;
 	}
 	
-	public static Chromosome[] mergeChromes(String[] values, Chromosome[] oldChromosomes) {
-		Chromosome[] newChromosomes = new Chromosome[oldChromosomes.length];
+	public static void mergeChromes(String[] values, Chromosome[] oldChromosomes) {
 		
 		for(String val : values) {
 			String[] valA = val.split("\n");
-			oldChromosomes[Integer.parseInt(valA[5])].addFitness(Double.parseDouble(valA[2]));
+			String[] scores = valA[4].split(",");
+			for(String s : scores) {
+				s = s.replace("[", "");
+				s = s.replace("]", "");
+				oldChromosomes[Integer.parseInt(valA[7])].addScore(Double.parseDouble(s));
+			}
+			String[] wins = valA[5].split(",");
+			for(String s : wins) {
+				s = s.replace("[", "");
+				s = s.replace("]", "");
+				oldChromosomes[Integer.parseInt(valA[7])].addWin(Double.parseDouble(s));
+			}
+			oldChromosomes[Integer.parseInt(valA[7])]._score = oldChromosomes[Integer.parseInt(valA[7])].averageScores();
+			oldChromosomes[Integer.parseInt(valA[7])]._win = oldChromosomes[Integer.parseInt(valA[7])].averageWins();
 		}
-		return newChromosomes;
 	}
 }
