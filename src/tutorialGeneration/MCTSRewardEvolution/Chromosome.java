@@ -52,6 +52,7 @@ public class Chromosome implements Comparable<Chromosome>{
 		static protected List<GameEvent> _rules;
 		static protected double _maxDepth; 
 		static protected int _levelCount;
+		static protected int _playthroughCount;
 	
 	/********************
 	 * OBJECT VARIABLES *
@@ -73,7 +74,7 @@ public class Chromosome implements Comparable<Chromosome>{
 		private int evalCount;
 	
 	//sets the static variables for the Chromsome class - shared between all chromosomes
-	public static void SetStaticVar(Random seed, String gn, String gp, List<GameEvent> rules, HashSet<String> varNames, double maxDepth, int levelCount) {
+	public static void SetStaticVar(Random seed, String gn, String gp, List<GameEvent> rules, HashSet<String> varNames, double maxDepth, int levelCount, int playthroughCount) {
 		Chromosome._rnd = seed;
 		Chromosome._gameName = gn;
 		Chromosome._gamePath = gp;
@@ -81,6 +82,7 @@ public class Chromosome implements Comparable<Chromosome>{
 		Chromosome._maxDepth = maxDepth;
 		Chromosome._rules = rules;
 		Chromosome._levelCount = levelCount;
+		Chromosome._playthroughCount = playthroughCount;
 	}
 	
 	
@@ -171,7 +173,7 @@ public class Chromosome implements Comparable<Chromosome>{
 		// run on all levels multiple times
 		double average = 0.0;
 		int levelCount = Chromosome._levelCount;
-		int playthroughCount = 1;
+		int playthroughCount = Chromosome._playthroughCount;
 		for (int i = 0; i < levelCount; i++) {
 			for(int j = 0; j < playthroughCount; j++) {
 				String levelName = Chromosome._gamePath.replace(".txt", "") + "_lvl" + i + ".txt";
