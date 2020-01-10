@@ -43,7 +43,8 @@ public class CMEMapElites {
 		
 		rules = parseTutorialRules(parameters.get("tutorialFile"));
 		varNames = this.convertToRuleNames(rules);
-		Chromosome.SetStaticVar(seed, gn, gl, rules, varNames, Double.parseDouble(parameters.get("maxTreeDepth")));
+		int levelCount = Integer.parseInt(parameters.get("levelCount"));
+		Chromosome.SetStaticVar(seed, gn, gl, rules, varNames, Double.parseDouble(parameters.get("maxTreeDepth")), levelCount);
 	}
 	
 	//returns a batch of randomly created chromosomes

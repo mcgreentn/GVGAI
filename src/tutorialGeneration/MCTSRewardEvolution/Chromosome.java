@@ -51,6 +51,7 @@ public class Chromosome implements Comparable<Chromosome>{
 		static protected EquationParser _eParser;
 		static protected List<GameEvent> _rules;
 		static protected double _maxDepth; 
+		static protected int _levelCount;
 	
 	/********************
 	 * OBJECT VARIABLES *
@@ -72,13 +73,14 @@ public class Chromosome implements Comparable<Chromosome>{
 		private int evalCount;
 	
 	//sets the static variables for the Chromsome class - shared between all chromosomes
-	public static void SetStaticVar(Random seed, String gn, String gp, List<GameEvent> rules, HashSet<String> varNames, double maxDepth) {
+	public static void SetStaticVar(Random seed, String gn, String gp, List<GameEvent> rules, HashSet<String> varNames, double maxDepth, int levelCount) {
 		Chromosome._rnd = seed;
 		Chromosome._gameName = gn;
 		Chromosome._gamePath = gp;
 		Chromosome._eParser = new EquationParser(new Random(), varNames, EvEqT.generateConstants(20, 1000));
 		Chromosome._maxDepth = maxDepth;
 		Chromosome._rules = rules;
+		Chromosome._levelCount = levelCount;
 	}
 	
 	
@@ -168,7 +170,7 @@ public class Chromosome implements Comparable<Chromosome>{
 
 		// run on all levels multiple times
 		double average = 0.0;
-		int levelCount = 1;
+		int levelCount = Chromosome._levelCount;
 		int playthroughCount = 1;
 		for (int i = 0; i < levelCount; i++) {
 			for(int j = 0; j < playthroughCount; j++) {
@@ -185,7 +187,7 @@ public class Chromosome implements Comparable<Chromosome>{
 				average += runFitness;
 			}
 		}
-		average = average / (levelCount * playthroughCount);
+//		average = average / (levelCount * playthroughCount);
 		
 		setConstraints(0); 	//set the constraints (win or lose)
 		this._fitness = average / (levelCount * playthroughCount);		//set the fitness
