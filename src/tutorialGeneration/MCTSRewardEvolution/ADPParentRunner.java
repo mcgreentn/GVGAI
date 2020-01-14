@@ -172,9 +172,13 @@ public class ADPParentRunner {
 				// 6p) read in the results of the child output chromosomes
 				System.out.println("P: Reading children results...");
 				String[] values = parent.assignChromosomes();
-				for(int i=0; i<chromosomes.length; i++) {
-					chromosomes[i].parseOutputFile(values[i]);
+				for(String value : values) {
+					String[] valA = value.split("\n");
+					chromosomes[Integer.parseInt(valA[7])].parseOutputFile(valA);
 				}
+//				for(int i=0; i<chromosomes.length; i++) {
+//					chromosomes[i].parseOutputFile(values[i]);
+//				}
 								
 				System.out.println("P: Checking population for further assessment...");
 				ArrayList<Tuple> furtherReview = map.checkForFurtherReview(chromosomes);
@@ -182,8 +186,7 @@ public class ADPParentRunner {
 				if (furtherReview.size() > 0) {
 					
 					// 6.5p) do the further review
-					ArrayList<String> outTemp = new ArrayList<String>();
-//					
+					ArrayList<String> outTemp = new ArrayList<String>();					
 					
 					int i = 0;
 			        for (Tuple tup : furtherReview) { 

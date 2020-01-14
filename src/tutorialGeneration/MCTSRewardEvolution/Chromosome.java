@@ -136,9 +136,7 @@ public class Chromosome implements Comparable<Chromosome>{
 	}
 	
 	//overwrites the results from an already calculated chromosome of a child process
-	public void parseOutputFile(String fileContents) {
-		String[] fileStuff = fileContents.split("\n");
-		
+	public void parseOutputFile(String[] fileStuff) {		
 		this._age = Integer.parseInt(fileStuff[0]);
 		this._constraints = Double.parseDouble(fileStuff[1]);
 		this._score = Double.parseDouble(fileStuff[2]);
@@ -247,6 +245,7 @@ public class Chromosome implements Comparable<Chromosome>{
 		
 		// dimension = tree depth
 		this._dimensions[0] = this.rewardEquation.getTreeDepth() - 1;
+		
 	}
 	
 	
@@ -335,10 +334,11 @@ public class Chromosome implements Comparable<Chromosome>{
 	 */
 	@Override
 	public int compareTo(Chromosome o) {
-		int better = (int) Math.signum(this._win - o._win);
-		if (better == 0) {
-			better = (int) Math.signum(this._score - o._score);
-		}
+		int better = (int) Math.signum((this._win + (this._score/1000)) - (o._win + (o._score/1000)));
+//		int better = (int) Math.signum(this._win - o._win);
+//		if (better == 0) {
+//			better = (int) Math.signum(this._score - o._score);
+//		}
 		return better;
 	}
 

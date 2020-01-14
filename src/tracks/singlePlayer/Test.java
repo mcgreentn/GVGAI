@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 import core.logging.Logger;
+import eveqt.EquationNode;
 import eveqt.EquationParser;
 import eveqt.EvEqT;
 import tools.Utils;
@@ -66,8 +67,10 @@ public class Test {
 			HashSet<String> varNames = convertToRuleNames(rules);
 	
 			EquationParser parser = new EquationParser(new Random(), varNames, EvEqT.generateConstants(20, 1000));
-		
-			Agent._rewardEquation = parser.parse("divide(abs(sigmoid(inv(ln(neg(cos(monsterQuick wall StepBack)))))),sin(inv(floor(withkey monsterSlow KillSprite))))");
+			EquationNode n = parser.parse("lg(0.08333333333333333,rand(max(monsterNormal monsterSlow StepBack,mul(min(-5.0,pow(14.0,ls(pow(sin(sin(mul(floor(tanh(divide(cos(neg(inv(sub(sub(sub(neg(neg(ceil(inv(eq(floor(mod(min(abs(mul(sigmoid(inv(inv(add(ln(mod(cos(inv(mod(pow(ls(sigmoid(neg(min(lg(floor(floor(inv(sin(mod(sin(sub(min(inv(pow(eq(ln(lg(eq(floor(add(sigmoid(rand(cos(mul(neg(lg(ls(mod(min(cos(ln(ls(add(divide(sin(divide(floor(ls(rand(neg(lg(min(sigmoid(inv(rand(abs(ls(pow(ln(sigmoid(ls(pow(sigmoid(floor(pow(tanh(eq(abs(cos(tanh(rand(sub(min(floor(min(eq(sigmoid(floor(sin(cos(pow(add(neg(rand(sigmoid(neg(mod(cos(eq(lg(max(neg(mul(mod(sin(sin(abs(sin(pow(pow(ceil(ln(rand(abs(eq(mul(floor(max(sigmoid(lg(sin(mod(sin(floor(abs(min(inv(rand(abs(mod(sigmoid(divide(sub(sin(mul(pow(divide(sub(-11.0,monsterSlow monsterNormal StepBack),withkey monsterQuick KillSprite),monsterNormal sword KillSprite),7.0)),monsterSlow wall StepBack),monsterSlow monsterNormal StepBack)),monsterSlow monsterNormal StepBack)),10.0)),monsterSlow wall StepBack)))),monsterSlow wall StepBack)),10.0)),-200.0)),monsterQuick sword KillSprite),withkey monsterQuick KillSprite)),nokey monsterNormal KillSprite))),-17.0),monsterNormal sword KillSprite))))),-2.0),monsterQuick wall StepBack)),monsterQuick monsterQuick StepBack),0.0625),monsterQuick sword KillSprite)),withkey monsterQuick KillSprite))),-16.0)),-200.0),nokey goal StepBack))))),0.5),monsterNormal monsterNormal StepBack)),-0.3333333333333333),0.05263157894736842),monsterNormal sword KillSprite)))),withkey monsterQuick KillSprite)),0.09090909090909091))),-0.05555555555555555),monsterQuick monsterNormal StepBack))),-0.25),monsterQuick sword KillSprite)),monsterQuick wall StepBack))),-0.07142857142857142),nokey monsterQuick KillSprite)),-15.0),-0.1)),4.0)),monsterQuick monsterQuick StepBack),-0.125),nokey wall StepBack))),nokey goal StepBack),0.125),withkey wall StepBack),20.0)),-0.08333333333333333)),monsterNormal wall StepBack)),goal null Win)),20.0),nokey monsterSlow KillSprite)),10.0),monsterQuick wall StepBack)),monsterSlow monsterNormal StepBack),-19.0)),4.0))))),0.3333333333333333),-7.0))),nokey monsterSlow KillSprite),withkey monsterNormal KillSprite),-18.0))),monsterQuick wall StepBack)),-0.05263157894736842)))),0.005)),0.09090909090909091),nokey withkey Lose)),-0.2))))),-0.3333333333333333),wall wall StepBack),monsterNormal sword KillSprite)))),nokey monsterNormal KillSprite))),-2.0))),monsterNormal monsterQuick StepBack),0.0625))),nokey goal StepBack)),abs(monsterSlow monsterNormal StepBack)))");
+			System.out.println(n.getTreeDepth());
+			
+			Agent._rewardEquation = n;
 			Agent._critPath = rules;
 			// 2. This plays a game in a level by the controller.
 			

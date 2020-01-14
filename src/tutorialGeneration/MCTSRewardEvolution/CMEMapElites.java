@@ -84,7 +84,8 @@ public class CMEMapElites {
 		for(Chromosome c : csomes) {
 			int[] raw_dimen = c._dimensions;
 			String dimen = dimensionsString(raw_dimen);
-			
+			System.out.println("Chrome: " + c.toString());
+			System.out.println("Dim: " + dimen);
 			//this dimensionality hasn't been saved to the map yet - so add it automatically
 			if(!_map.containsKey(dimen)) {
 				 _map.put(dimen, c);
@@ -181,7 +182,6 @@ public class CMEMapElites {
 		Set<String> keys = this._map.keySet();
 		for(String k : keys) {
 			Chromosome l = this._map.get(k);
-			
 			str += ("Dimensions: [" + k + "]");
 			str += ("\nAge: " + l.get_age());
 			str += ("\nEval Count: " + l.getEvalCount());

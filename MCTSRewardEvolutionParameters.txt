@@ -11,5 +11,5 @@ coinFlip = 0.5
 exportFreq = 1
 maxTreeDepth = 10
 signalFolder = signals/
-levelCount = 3
+levelCount = 1
 playthroughCount = 1
