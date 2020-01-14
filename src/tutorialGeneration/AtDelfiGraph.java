@@ -18,6 +18,7 @@ import core.game.GameDescription.SpriteData;
 import core.game.GameDescription.TerminationData;
 import tools.GameAnalyzer;
 import tools.LevelAnalyzer;
+import tutorialGeneration.ruleMerging.MechanicMerger;
 
 import org.graphstream.graph.*;
 import org.graphstream.graph.implementations.*;
@@ -778,7 +779,10 @@ public class AtDelfiGraph {
 			return NodeType.UKNOWN;
 	}
 	
-
+	public void mergeMechanics() {
+		MechanicMerger mm = new MechanicMerger();
+		mm.setSpriteInfo(gd.getAllSpriteData());
+	}
 	public void insertFrameInformation(VisualDemonstrationInterfacer vdi) {
 
 			ArrayList<String> agents = vdi.getAgents(this.name);

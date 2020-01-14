@@ -58,8 +58,8 @@ public class TestAtDelfi {
 		TestAtDelfi tester = new TestAtDelfi();		
 		
 //		tester.testAllGames(seed);
-		tester.testOneGame(seed, tester.gameIdx);
-		
+//		tester.testOneGame(seed, tester.gameIdx);
+		tester.testMechanicMerger(seed);
 //		tester.testOneGame_HPC(seed, Integer.parseInt(args[0]));
 //		tester.testFirstGames(seed);
 //		tester.testSecondGames(seed);
@@ -67,6 +67,15 @@ public class TestAtDelfi {
 //		tester.testFourthGames(seed);
 	}
 	
+	public void testMechanicMerger(int seed) {
+		this.gameFile = this.generateTutorialPath + games[gameIdx][1] + ".txt";
+		this.levelFile = this.gamesPath + games[gameIdx][1] + "_lvl" + this.levelIdx + ".txt";
+        this.recordTutorialFile = this.generateTutorialPath + games[gameIdx][1] + "_tutorial.txt";
+
+		AtDelfi atdelfi = new AtDelfi(this.gameFile, this.levelFile, this.getGame(this.gameIdx)[1], seed, this.verbose);
+		atdelfi.buildGraph("human", levelIdx);	
+		atdelfi.getGameGraph().mergeMechanics();
+	}
 	public void testAllGames(int seed) {
 		// Set up AtDelfi
 		for (String[] gameInfo : this.games) {
@@ -157,7 +166,6 @@ public class TestAtDelfi {
 
 		atdelfi.saveGameMechanics("mechanics.json", atdelfi.getGameGraph().getMechanics());
 		atdelfi.saveGameMechanics("critical_mechanics.json", critPath);
-		System.out.println("boop");
 //		for (Mechanic m : critPath) {
 //			System.out.println(m.());
 //		}
