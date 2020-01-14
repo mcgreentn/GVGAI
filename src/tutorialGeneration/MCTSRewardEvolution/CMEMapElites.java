@@ -158,6 +158,9 @@ public class CMEMapElites {
 		for (GameEvent event : mechanics) {
 			mechNames.add(event.toString());
 		}
+		// add in these two manually
+		mechNames.add("score");
+		mechNames.add("win");
 		HashSet<String> varSet = new HashSet<String>(mechNames);
 		return varSet;
 	}

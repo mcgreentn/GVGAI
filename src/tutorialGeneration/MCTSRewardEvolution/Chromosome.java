@@ -131,8 +131,6 @@ public class Chromosome implements Comparable<Chromosome>{
 		} catch (Exception e) {
 			e.printStackTrace();
 		};
-		
-
 	}
 	
 	//overwrites the results from an already calculated chromosome of a child process
@@ -243,10 +241,14 @@ public class Chromosome implements Comparable<Chromosome>{
 		//System.out.println("calculating dimensions...");
 		
 		//create a new dimension set based on the size of max tree depth and set all values to 0
-		this._dimensions = new int[1];
+		this._dimensions = new int[4];
 		
 		// dimension = tree depth
-		this._dimensions[0] = this.rewardEquation.getTreeDepth() - 1;
+		this._dimensions[0] = this.rewardEquation.getTreeDepth();
+		this._dimensions[1] = this.rewardEquation.getTreeNodeCount();
+		
+		this._dimensions[2] = (this.rewardEquation.checkVariableInTree("win") ? 1 : 0);
+		this._dimensions[3] = (this.rewardEquation.checkVariableInTree("score") ? 1 : 0);
 	}
 	
 	

@@ -250,7 +250,7 @@ public class SingleTreeNode
         	if (this.rootNode.rewardEquation == null)
         		delta += getCritPathBonus(ogGameTick, state.getFirstTimeEventsHistory());
         	else 
-        		delta = evaluateRewardEquation(ogGameTick, state.getFirstTimeEventsHistory());
+        		delta = evaluateRewardEquation(ogGameTick, state);
         }
         if(delta < bounds[0])
             bounds[0] = delta;
@@ -280,9 +280,9 @@ public class SingleTreeNode
         return rawScore;
     }
     
-    public double evaluateRewardEquation(int ogGameTick, ArrayList<GameEvent> interactions) {
+    public double evaluateRewardEquation(int ogGameTick, StateObservation state) {
     	double value = 0.0;
-    	Object[] interactionArray = interactions.toArray();
+    	Object[] interactionArray = state.getFirstTimeEventsHistory().toArray();
     	
     	HashMap mechanicMap = new HashMap<String, Integer>();
     	for(GameEvent event : this.critPath) {
@@ -293,6 +293,8 @@ public class SingleTreeNode
 			double temp = (double) mechanicMap.get(interaction.toString());
 			mechanicMap.put(interaction.toString(), temp+1);
 		}
+    	mechanicMap.put("score", (double) state.getGameScore());
+    	mechanicMap.put("win", (state.getGameWinner() == Types.WINNER.PLAYER_WINS ? 1.0 : 0.0));
     	
 		value = rewardEquation.evaluate(mechanicMap);
 		
