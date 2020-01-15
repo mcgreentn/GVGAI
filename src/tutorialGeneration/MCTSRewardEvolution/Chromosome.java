@@ -240,7 +240,7 @@ public class Chromosome implements Comparable<Chromosome>{
 		this._dimensions = new int[4];
 		
 		this._dimensions[0] = this.rewardEquation.getTreeDepth();
-		this._dimensions[1] = this.rewardEquation.getTreeNodeCount();
+		this._dimensions[1] = (int) Math.log(this.rewardEquation.getTreeNodeCount());
 		
 		this._dimensions[2] = (this.rewardEquation.checkVariableInTree("win") ? 1 : 0);
 		this._dimensions[3] = (this.rewardEquation.checkVariableInTree("score") ? 1 : 0);
