@@ -34,7 +34,7 @@ public class RunOne {
 		int levelIdx = Integer.parseInt(args[1]); // level names from 0 to 4 (game_lvlN.txt).
 		String gameName = games[gameIdx][1];
 		String game = games[gameIdx][0];
-		String level1 = game.replace(gameName, gameName + "_lvl" + levelIdx);
+		
 
 		String recordActionsFile = null;// "actions_" + games[gameIdx] + "_lvl"
 						// + levelIdx + "_" + seed + ".txt";
@@ -46,15 +46,18 @@ public class RunOne {
 		// set up InteractionStaticData
 		InteractionStaticData.gameName = gameName;
 		InteractionStaticData.agentName = args[2];
-		InteractionStaticData.levelCount = args[1];
+		
 		// play 20 per level
 		int playthroughTotal = Integer.parseInt(args[3]);
-//		InteractionStaticData.playthroughCount = args[2];
 		
 		InteractionStaticData.createFolders();
-		for(int i = 0; i < playthroughTotal; i++) {
-			InteractionStaticData.playthroughCount = "" + i;
-			ArcadeMachine.runOneGame(game, level1, visuals, agent, recordActionsFile, seed, 0);
+		for (int j = 0; j < 5; j++) {
+			String level1 = game.replace(gameName, gameName + "_lvl" + j);
+			for(int i = 0; i < playthroughTotal; i++) {
+				InteractionStaticData.playthroughCount = "" + i;
+				InteractionStaticData.levelCount = "" + j;
+				ArcadeMachine.runOneGame(game, level1, visuals, agent, recordActionsFile, seed, 0);
+			}
 		}
 
     }
