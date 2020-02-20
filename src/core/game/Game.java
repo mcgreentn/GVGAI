@@ -1027,7 +1027,7 @@ public abstract class Game {
 			storeFramesAndActions(players, frameStorer);
 		}
 		///  PUT THIS BACK LATER  ///
-		//storeActionsAndInteractions();
+//		storeActionsAndInteractions();
 
 		//saves to a dummy json file (for use with AtDelphi+ to get dimensionality)
 		storeInteractionsJSON(jsonFiles);
@@ -1052,7 +1052,7 @@ public abstract class Game {
 			this.gameCycle(); // Execute a game cycle.
 
 			/// TODO PUT THIS BACK LATER  ///
-			//storeFramesAndActions(players, frameStorer);
+			storeFramesAndActions(players, frameStorer);
 		}
 
 		/// TODO PUT THIS BACK LATER  ///
