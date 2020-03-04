@@ -45,5 +45,5 @@ BasicGame
 
     TerminationSet
         Timeout limit=1000 win=True
-        MultiSpriteCounter stype1=eatenBrains limit=1 win=False
+        MultiSpriteCounter stype1=eatenBrains limit=1 win=False min=True
         SpriteCounter stype=avatar limit=0 win=False

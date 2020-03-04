@@ -40,7 +40,7 @@ public class RunOne {
 						// where to record the actions
 						// executed. null if not to save.
 		
-		String agent = agents[Integer.parseInt(args[2]) * 2];
+		String agent = agents[Integer.parseInt(args[2]) * 3];
 		
 		// set up InteractionStaticData
 		InteractionStaticData.gameName = gameName;
@@ -50,6 +50,7 @@ public class RunOne {
 		int playthroughTotal = Integer.parseInt(args[3]);
 		
 		InteractionStaticData.createFolders();
+		
 		for (int j = 0; j < 5; j++) {
 			String level1 = game.replace(gameName, gameName + "_lvl" + j);
 			for(int i = 0; i < playthroughTotal; i++) {
@@ -61,7 +62,20 @@ public class RunOne {
 			}
 		}
 		
-		agent = agents[Integer.parseInt(args[2]) * 2 + 1];
+		agent = agents[Integer.parseInt(args[2]) * 3 + 1];
+		InteractionStaticData.agentName = agent;
+		for (int j = 0; j < 5; j++) {
+			String level1 = game.replace(gameName, gameName + "_lvl" + j);
+			for(int i = 0; i < playthroughTotal; i++) {
+				InteractionStaticData.playthroughCount = "" + i;
+				InteractionStaticData.levelCount = "" + j;
+				String recordActionsFile = agent + "_lvl"
+						+ j + "_playthrough" + i + "_" + seed + ".txt";
+				ArcadeMachine.runOneGame(game, level1, visuals, agent, recordActionsFile, seed, 0);
+			}
+		}
+		
+		agent = agents[Integer.parseInt(args[2]) * 3 + 2];
 		InteractionStaticData.agentName = agent;
 		for (int j = 0; j < 5; j++) {
 			String level1 = game.replace(gameName, gameName + "_lvl" + j);
