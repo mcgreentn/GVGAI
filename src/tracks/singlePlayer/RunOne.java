@@ -26,69 +26,43 @@ public class RunOne {
 		String[] agents = RunOne.generateAgents();
 		
 		//Game settings
-		boolean visuals = false;
-		int seed = new Random().nextInt();
-
-		// Game and level to play
+		int seed = new Random().nextInt();		
 		int gameIdx = Integer.parseInt(args[0]);
-		int levelIdx = Integer.parseInt(args[1]); // level names from 0 to 4 (game_lvlN.txt).
+		int agentStart = Integer.parseInt(args[1]);
+		int totalCount = Integer.parseInt(args[2]);
+		boolean visuals = false;
+		boolean recordActions = Boolean.parseBoolean(args[3]);
+		
+		runMany(games, agents, agentStart, totalCount, totalCount, totalCount, totalCount, visuals, recordActions);
+    }
+    
+    public static void runMany(String[][] games, String[] agents, int agentStart, int gameIdx, int totalCount, int playthroughTotal, int seed, boolean visuals, boolean recordActions) {
 		String gameName = games[gameIdx][1];
 		String game = games[gameIdx][0];
 		
-
-		
-						// where to record the actions
-						// executed. null if not to save.
-		
-		String agent = agents[Integer.parseInt(args[2]) * 3];
-		
-		// set up InteractionStaticData
-		InteractionStaticData.gameName = gameName;
-		InteractionStaticData.agentName = agent;
-		
-		// play 20 per level
-		int playthroughTotal = Integer.parseInt(args[3]);
-		
-		InteractionStaticData.createFolders();
-		
-		for (int j = 0; j < 5; j++) {
-			String level1 = game.replace(gameName, gameName + "_lvl" + j);
-			for(int i = 0; i < playthroughTotal; i++) {
-				InteractionStaticData.playthroughCount = "" + i;
-				InteractionStaticData.levelCount = "" + j;
-				String recordActionsFile = agent + "_lvl"
-						+ j + "_playthrough" + i + "_" + seed + ".txt";
-				ArcadeMachine.runOneGame(game, level1, visuals, agent, recordActionsFile, seed, 0);
-			}
-		}
-		
-		agent = agents[Integer.parseInt(args[2]) * 3 + 1];
-		InteractionStaticData.agentName = agent;
-		for (int j = 0; j < 5; j++) {
-			String level1 = game.replace(gameName, gameName + "_lvl" + j);
-			for(int i = 0; i < playthroughTotal; i++) {
-				InteractionStaticData.playthroughCount = "" + i;
-				InteractionStaticData.levelCount = "" + j;
-				String recordActionsFile = agent + "_lvl"
-						+ j + "_playthrough" + i + "_" + seed + ".txt";
-				ArcadeMachine.runOneGame(game, level1, visuals, agent, recordActionsFile, seed, 0);
-			}
-		}
-		
-		agent = agents[Integer.parseInt(args[2]) * 3 + 2];
-		InteractionStaticData.agentName = agent;
-		for (int j = 0; j < 5; j++) {
-			String level1 = game.replace(gameName, gameName + "_lvl" + j);
-			for(int i = 0; i < playthroughTotal; i++) {
-				InteractionStaticData.playthroughCount = "" + i;
-				InteractionStaticData.levelCount = "" + j;
-				String recordActionsFile = agent + "_lvl"
-						+ j + "_playthrough" + i + "_" + seed + ".txt";
-				ArcadeMachine.runOneGame(game, level1, visuals, agent, recordActionsFile, seed, 0);
-			}
-		}
-		
-
+    	for(int k = 0; k < totalCount; k++) {
+    		String agent = agents[agentStart * totalCount + k];
+    		InteractionStaticData.agentName = agent;
+    		for (int j = 0; j < 5; j++) {
+    			String level = game.replace(gameName, gameName + "_lvl" + j);
+    			for(int i = 0; i < playthroughTotal; i++) {
+    				InteractionStaticData.playthroughCount = "" + i;
+    				InteractionStaticData.levelCount = "" + j;
+    				String recordActionsFile = agent + "_lvl"
+    						+ j + "_playthrough" + i + "_" + seed + ".txt";
+    				try {
+    				ArcadeMachine.runOneGame(game, level, visuals, agent, recordActionsFile, seed, 0);
+    				}
+    				catch(Exception e) {
+    					System.err.println("Failed for the following reason:\n" + e);
+    				}
+    			}
+    		}
+    	}
+    }
+    
+    public void runOne() {
+    	
     }
     
 	public static String[] generateAgents() {
