@@ -3,6 +3,7 @@ package tracks.singlePlayer;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 
 import core.logging.Logger;
@@ -30,8 +31,9 @@ public class RunOne {
 		int gameIdx = Integer.parseInt(args[0]);
 		int agentStart = Integer.parseInt(args[1]);
 		int totalCount = Integer.parseInt(args[2]);
+		int playthroughTotal = Integer.parseInt(args[3]);
 		boolean visuals = false;
-		boolean recordActions = Boolean.parseBoolean(args[3]);
+		boolean recordActions = Boolean.parseBoolean(args[4]);
 		
 		runMany(games, agents, agentStart, totalCount, totalCount, totalCount, totalCount, visuals, recordActions);
     }
@@ -39,9 +41,20 @@ public class RunOne {
     public static void runMany(String[][] games, String[] agents, int agentStart, int gameIdx, int totalCount, int playthroughTotal, int seed, boolean visuals, boolean recordActions) {
 		String gameName = games[gameIdx][1];
 		String game = games[gameIdx][0];
-		
+		InteractionStaticData.gameName = gameName;
+		File gameDir = new File(gameName);
+		try {
+			if(!gameDir.exists()) {
+				gameDir.mkdir();
+			}
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
     	for(int k = 0; k < totalCount; k++) {
+    		
     		String agent = agents[agentStart * totalCount + k];
+    		System.out.println(agent);
     		InteractionStaticData.agentName = agent;
     		for (int j = 0; j < 5; j++) {
     			String level = game.replace(gameName, gameName + "_lvl" + j);
@@ -71,14 +84,17 @@ public class RunOne {
 			String[] agents = agentsDirectory.list(new FilenameFilter() {
 				  @Override
 				  public boolean accept(File current, String name) {
-				    return new File(current, name).isDirectory();
+					File agentFile = new File(current, name + "/Agent.java");
+				    return new File(current, name).isDirectory() && agentFile.exists();
 				  }
 				});
 			
 			for(int i = 0; i < agents.length; i++) {
-				agents[i] = "agents." + agents[i] + ".Agent";
+				if (!agents[i].equals("Heuristics")) {
+					agents[i] = "agents." + agents[i] + ".Agent";
+				}
 			}
-			
+			Arrays.sort(agents);
 			return agents;
 			
 		}catch(Exception e) {
