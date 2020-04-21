@@ -73,10 +73,10 @@ public class Test {
 			Agent._rewardEquation = n;
 			Agent._critPath = rules;
 			// 2. This plays a game in a level by the controller.
-			
-			String actionFile = "F:\\Google Drive\\Projects\\Tutorial Generation\\Critical Mechanic Discovery Methods\\Attention Mechanisms\\raw\\agents\\agents.ICELab.Agent_lvl0_playthrough0_-1974834944.txt";
+			ArcadeMachine.runOneGame(game, level1, visuals, sampleMCTSController, null, seed, 0);
+//			String actionFile = "F:\\Google Drive\\Projects\\Tutorial Generation\\Critical Mechanic Discovery Methods\\Attention Mechanisms\\raw\\agents\\agents.ICELab.Agent_lvl0_playthrough0_-1974834944.txt";
 //			double[] results = ArcadeMachine.runOneGame(game, level1, visuals, sampleMCTSController, recordActionsFile, seed, 0);
-			ArcadeMachine.replayGame(game, level1, visuals, actionFile);
+//			ArcadeMachine.replayGame(game, level1, visuals, actionFile);
 			System.out.println("");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

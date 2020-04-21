@@ -1,5 +1,6 @@
 package video.handlers;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -42,8 +43,16 @@ public class StoreGameSimulationResult
 	
 	public void writeAllInfo(String myFile) throws IOException {
 		
+//		File yourFile = new File("simluation");
+//		if (!yourFile.exists()) {
+//			yourFile.mkdir();
+//		}
+//		File simFile = new File(myFile);
+//		if (!simFile.exists()) {
+//			simFile.createNewFile();
+//		}
 		try (FileWriter file = new FileWriter(myFile)) {
-
+			
 			file.write("{\"interactions\":[");
 			int i = 0;
 			for(Object obj : interactions) {

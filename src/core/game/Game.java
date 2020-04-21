@@ -1396,13 +1396,17 @@ public abstract class Game {
 			File f = new File(InteractionStaticData.gameName, InteractionStaticData.agentName + "_" + InteractionStaticData.levelCount + "_" + InteractionStaticData.playthroughCount +
 					"_result.json");
 
-			storeGameSimulationResult.writeAllInfo(f.toString());
+//			storeGameSimulationResult.writeAllInfo(f.toString());
 			InteractionStaticData.resultsCounter += 1;
 		}
 		 
 
 		System.out.println("Result (1->win; 0->lose): " + sb1 + sb2 + "timesteps:" + this.getGameTick());
+		
+		for(GameEvent e : this.currentEvents) {
+			System.out.println(e);
 
+		}
 		/* UNCOMMENT LATER
 		ArrayList<SpriteCapture> spritesCaptured = new ArrayList<>();
 		for (int i = 0; i < spriteCopies.size(); i++) {
@@ -1835,6 +1839,7 @@ public abstract class Game {
 	private void executeEffect(Effect ef, VGDLSprite s1, VGDLSprite s2) {
 		// There is a collision. Apply the effect.
 		ef.execute(s1, s2, this);
+		System.out.println(ef.getClass().getName());
 
 		// Affect score:
 		if (ef.applyScore) {
@@ -1876,6 +1881,20 @@ public abstract class Game {
 					sprite2);
 
 			storeInteraction.storeAllInteraction(interaction);
+		} else if(s1 != null) {
+			String rule = ef.getClass().getName();
+			String sprite1 = VGDLRegistry.GetInstance().getRegisteredSpriteKey(s1.getType());
+			Interaction interaction = new Interaction(String.valueOf(this.gameTick),
+					rule,
+					sprite1,
+					"nothing");
+		} else if (s2 != null){
+			String rule = ef.getClass().getName();
+			String sprite2 = VGDLRegistry.GetInstance().getRegisteredSpriteKey(s2.getType());
+			Interaction interaction = new Interaction(String.valueOf(this.gameTick),
+					rule,
+					sprite2,
+					"nothing");
 		}
 	}
 
