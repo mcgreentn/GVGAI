@@ -65,10 +65,13 @@ public class AtDelfiValidator_HPC {
 		int seed = 100;
 		AtDelfiValidator_HPC validator = new AtDelfiValidator_HPC();
 		int id = Integer.parseInt(args[0]);
+		SingleMCTSPlayer.numIterations = Integer.parseInt(args[2]);
+		SingleTreeNode.ROLLOUT_DEPTH = Integer.parseInt(args[3]);
+
 		
 		int u=id%10;
 	    int t=(id/10)%10;
-		String criticalFile = "mechanics.json";
+		String criticalFile = "critical_mechanics.json";
 	    
 	    if(id > 299) {
 			validator.gameIdx = 34;
@@ -89,33 +92,35 @@ public class AtDelfiValidator_HPC {
 		
 
 		// TODO remove for normal experiments
-		validator.gameIdx = 34;
-		
+//		validator.gameIdx = 30;
+//		criticalFile = "critical_mechanics_plants.json";
+
+		// KEEP THIS
 		int withoutH = u + t*10;
 		
 		// TODO reinsert for normal experiments
-//		if (withoutH > 79) 
-//			validator.levelIdx = 4;
-//		else if(withoutH > 59)
-//			validator.levelIdx = 3;
-//		else if(withoutH > 39)
-//			validator.levelIdx = 2;
-//		else if(withoutH > 19)
-//			validator.levelIdx = 1;
-//		else
-//			validator.levelIdx = 0;
-		
-		// TODO remove for normal experiments
-		if (withoutH > 799) 
+		if (withoutH > 79) 
 			validator.levelIdx = 4;
-		else if(withoutH > 599)
+		else if(withoutH > 59)
 			validator.levelIdx = 3;
-		else if(withoutH > 399)
+		else if(withoutH > 39)
 			validator.levelIdx = 2;
-		else if(withoutH > 199)
+		else if(withoutH > 19)
 			validator.levelIdx = 1;
 		else
 			validator.levelIdx = 0;
+		
+		// TODO remove for normal experiments
+//		if (withoutH > 799) 
+//			validator.levelIdx = 4;
+//		else if(withoutH > 599)
+//			validator.levelIdx = 3;
+//		else if(withoutH > 399)
+//			validator.levelIdx = 2;
+//		else if(withoutH > 199)
+//			validator.levelIdx = 1;
+//		else
+//			validator.levelIdx = 0;
 		
 
 		
@@ -123,7 +128,8 @@ public class AtDelfiValidator_HPC {
 		boolean improved = Boolean.parseBoolean(args[1]);
 		
 		System.out.println("******************");
-		System.out.println("Improved: " + improved + "\nCritical file: " + criticalFile + "\nGame: " + validator.gameIdx + "\nLevel: " + validator.levelIdx);
+		System.out.println("Improved: " + improved + "\nCritical file: " + criticalFile + "\nGame: " 
+		+ validator.gameIdx + "\nLevel: " + validator.levelIdx + "\nTree Size: " + SingleMCTSPlayer.numIterations + "\nRollout: " + SingleTreeNode.ROLLOUT_DEPTH);
 		validator.runXperiments(criticalFile, improved, seed, false, id);
 	}
 	
@@ -187,65 +193,6 @@ public class AtDelfiValidator_HPC {
 			}
 	}
 	
-	// TODO remove this if not needed or pull into utils file
-	public void setupCritPath(ArrayList<GameEvent> critPath) {
-		if(gameIdx == 47) {
-			// zelda
-//        	critPath.add(new PlayerAction("ACTION_USE"));
-//        	critPath.add(new Interaction("KillSprite", "monsterQuick", "sword"));
-//        	critPath.add(new Interaction("KillSprite", "monsterNormal", "sword"));
-//        	critPath.add(new Interaction("KillSprite", "monsterSlow", "sword"));
-        	critPath.add(new Interaction("TransformTo", "nokey",  "key"));
-        	critPath.add(new Interaction("KillSprite", "goal", "withkey"));		        	
-        } else if(gameIdx == 42) {
-        	// survivezombies
-        	critPath.add(new Interaction("SubtractHealthPoints", "avatar", "zombie"));
-        	critPath.add(new Interaction("KillSprite", "avatar", "zombie"));
-        	critPath.add(new Interaction("StepBack", "avatar", "wall"));
-        	critPath.add(new Interaction("AddHealthPoints", "avatar", "honey"));
-        } else if(gameIdx == 39) {
-        	// solarfox
-        	critPath.add(new Interaction("KillSprite","blib","avatar"));
-        } else if(gameIdx == 34) {
-        	// realportals
-        	critPath.add(new PlayerAction("ACTION_USE"));
-        	critPath.add(new Interaction("TransformTo", "avatarIn", "weaponToggle1"));
-        	critPath.add(new Interaction("TransformTo", "avatarOut", "weaponToggle2"));
-        	critPath.add(new Interaction("TransformTo", "wall", "missileOut"));
-        	critPath.add(new Interaction("TransformTo", "wall", "missileIn"));
-        	critPath.add(new Interaction("TeleportToExit","avatarIn","portalentry"));
-        	critPath.add(new Interaction("TeleportToExit","avatarOut","portalentry"));
-        	critPath.add(new Interaction("StepBack","avatarOut","portalExit"));
-        	critPath.add(new Interaction("StepBack","avatarIn","portalExit"));
-        	critPath.add(new Interaction("KillSprite", "key", "avatarIn"));
-        	critPath.add(new Interaction("KillSprite", "key", "avatarOut"));
-        	critPath.add(new Interaction("KillIfOtherHasMore", "lock", "avatarOut"));
-        	critPath.add(new Interaction("KillIfOtherHasMore", "lock", "avatarIn"));
-        	critPath.add(new Interaction("KillSprite", "goal", "avatarOut"));
-        	critPath.add(new Interaction("KillSprite", "goal", "avatarIn"));
-        	
-        	// levels > 0
-        	critPath.add(new Interaction("TeleportToExit","bolderm","portalentry"));
-        	critPath.add(new Interaction("TransformTo","bolder","avatar"));
-        	critPath.add(new Interaction("KillBoth", "water", "bolderm"));
-
-
-
-        } else if(gameIdx == 30) {
-        	// plants
-        	critPath.add(new PlayerAction("ACTION_USE"));
-        	critPath.add(new Interaction("TransformTo", "shovel", "marsh"));
-        	critPath.add(new Interaction("TransformTo", "plant", "axe"));
-        } else if(gameIdx == 4)
-        {
-        	// boulderdash
-        	critPath.add(new Interaction("StepBack", "avatar", "wall"));
-        	critPath.add(new Interaction("KillIfOtherHasMore", "exitdoor", "avatar"));
-        	critPath.add(new Interaction("StepBack", "avatar", "boulder"));
-        	critPath.add(new Interaction("CollectResource", "diamond", "avatar"));
-        	critPath.add(new Interaction("KillSprite", "dirt", "avatar"));
-        }
-	}
 	
 	
 	

@@ -42,8 +42,8 @@ public class TestAtDelfi {
     
     String gameFile, levelFile, recordTutorialFile;
 
-    int levelIdx = 2; // level names from 0 to 4 (game_lvlN.txt).
-    int gameIdx = 47;
+    int levelIdx = 3; // level names from 0 to 4 (game_lvlN.txt).
+    int gameIdx = 39;
 
     public TestAtDelfi() {
         // settings        
@@ -58,8 +58,8 @@ public class TestAtDelfi {
 		TestAtDelfi tester = new TestAtDelfi();		
 		
 //		tester.testAllGames(seed);
-//		tester.testOneGame(seed, tester.gameIdx);
-		tester.testMechanicMerger(seed);
+		tester.testOneGame(seed, tester.gameIdx);
+//		tester.testMechanicMerger(seed);
 //		tester.testOneGame_HPC(seed, Integer.parseInt(args[0]));
 //		tester.testFirstGames(seed);
 //		tester.testSecondGames(seed);
@@ -73,8 +73,8 @@ public class TestAtDelfi {
         this.recordTutorialFile = this.generateTutorialPath + games[gameIdx][1] + "_tutorial.txt";
 
 		AtDelfi atdelfi = new AtDelfi(this.gameFile, this.levelFile, this.getGame(this.gameIdx)[1], seed, this.verbose);
-		atdelfi.buildGraph("human", levelIdx);	
-		atdelfi.getGameGraph().mergeMechanics();
+		atdelfi.buildGraph("human", levelIdx);
+//		atdelfi.getGameGraph().mergeMechanics();
 	}
 	public void testAllGames(int seed) {
 		// Set up AtDelfi
@@ -157,15 +157,13 @@ public class TestAtDelfi {
         this.recordTutorialFile = this.generateTutorialPath + games[gameIdx][1] + "_tutorial.txt";
 
 		AtDelfi atdelfi = new AtDelfi(this.gameFile, this.levelFile, this.getGame(this.gameIdx)[1], seed, this.verbose);
-//		atdelfi.testPlayGames();
-		atdelfi.buildGraph("human", levelIdx);	
+		atdelfi.buildGraph("human", levelIdx);
 		
-		CriticalPather criticalPather = new BFSPather(atdelfi.getGameGraph());
-//		
-		List<Mechanic> critPath = atdelfi.criticalPath(criticalPather, "adrienctx.Agent", true, 0);
+//		CriticalPather criticalPather = new BFSPather(atdelfi.getGameGraph());
+//		List<Mechanic> critPath = atdelfi.getCriticalPath();
 
 		atdelfi.saveGameMechanics("mechanics.json", atdelfi.getGameGraph().getMechanics());
-		atdelfi.saveGameMechanics("critical_mechanics.json", critPath);
+//		atdelfi.saveGameMechanics("critical_mechanics.json", critPath);
 //		for (Mechanic m : critPath) {
 //			System.out.println(m.());
 //		}

@@ -7,6 +7,7 @@ import core.game.Game;
 import ontology.Types;
 import tools.Direction;
 import tools.Vector2d;
+import video.basics.Interaction;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -89,6 +90,12 @@ public class SpawnPointMultiSprite extends SpriteProducer
                         newSprite.orientation = this.orientation.copy();
                 }
             }
+            Interaction interaction = new Interaction(
+            		String.valueOf(game.getGameTick()),
+            		"Spawn",
+            		VGDLRegistry.GetInstance().getRegisteredSpriteKey(this.getType()),
+            		"");
+                game.gameEvents.add(interaction);
         }
 
         super.update(game);

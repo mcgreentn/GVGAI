@@ -304,8 +304,8 @@ public class StateObservation {
      * that can possibly occur according to the game rules.
      * @return
      */
-    public ArrayList<GameEvent> getFirstTimeEventsHistory() {
-    	return model.getFirstTimeEventsHistory();
+    public ArrayList<GameEvent> getGameEventsHistory() {
+    	return model.getGameEventsHistory();
     }  
     
     public ArrayList<GameEvent> getCurrentGameTickEvents() {

@@ -131,7 +131,7 @@ public class ForwardModel extends Game
         kill_list = new ArrayList<VGDLSprite>();
         bucketList = new Bucket[numSpriteTypes];
         historicEvents = new TreeSet<Event>();
-        firstTimeEvents = new ArrayList<GameEvent>();
+        gameEvents = new ArrayList<GameEvent>();
         shieldedEffects = new ArrayList[numSpriteTypes];
 
         //Copy of sprites from the game.
@@ -184,8 +184,8 @@ public class ForwardModel extends Game
             historicEvents.add(historicEvent.copy());
         }
         
-        for (GameEvent event : a_gameState.firstTimeEvents) {
-            firstTimeEvents.add(event);
+        for (GameEvent event : a_gameState.gameEvents) {
+            gameEvents.add(event);
         }
         
         //copy the time effects:
@@ -1028,9 +1028,9 @@ public class ForwardModel extends Game
      * Returns the list of historic events happened in this game so far.
      * @return list of historic events happened in this game so far.
      */
-    public ArrayList<GameEvent> getFirstTimeEventsHistory()
+    public ArrayList<GameEvent> getGameEventsHistory()
     {
-        return firstTimeEvents;
+        return gameEvents;
     }
     
     public ArrayList<GameEvent> getCurrentGameTickEvents()

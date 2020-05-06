@@ -106,8 +106,8 @@ public class AtDelfiGraph {
 	private String conditionAttributes = "shape:diamond;fill-color:" + conditionColor + ";size:100px;text-color:#000000;text-size:12;text-alignment:center;";
 	private String actionAttributes = "shape:box;fill-color:" + actionColor + ";size:75px;text-color:#FFFFFF;text-size:12;text-alignment:center;";
 	
-	private String critPathAttributes = "shape:rounded-box;fill-color:" + critPathColor +";size:250px, 25px;text-color:#000000;text-size:12;text-alignment:center;";
-	private String mechanicAttributes = "shape:rounded-box;stroke-mode:plain;fill-color:" + mechanicColor +";size:250px, 25px;text-color:#000000;text-size:12;text-alignment:center;";
+	private String critPathAttributes = "shape:rounded-box;fill-color:" + critPathColor +";size:280px, 25px;text-color:#000000;text-size:25;text-alignment:center;";
+	private String mechanicAttributes = "shape:rounded-box;stroke-mode:plain;fill-color:" + mechanicColor +";size:280px, 25px;text-color:#000000;text-size:25;text-alignment:center;";
 	
 	/**
 	 * Constructs a new AtDelfi Graph
@@ -645,7 +645,7 @@ public class AtDelfiGraph {
 			beginLabel += sprite.getName() + " ";
 		}
 		beginLabel += mech.getConditions().get(0).getName() + " ";
-		c.addAttribute("ui.label", beginLabel + mech.getReadibleAction()); //+ " : " + mech.getFrames().get(agent)[level]);
+		c.addAttribute("ui.label", beginLabel + mech.getReadibleAction()+ "\nFrame : " + mech.getFrame());
 
 //		c.addAttribute("ui.label", beginLabel + mech.getReadibleAction());
 		c.addAttribute("ui.style", details);
@@ -783,37 +783,25 @@ public class AtDelfiGraph {
 		MechanicMerger mm = new MechanicMerger();
 		mm.setSpriteInfo(gd.getAllSpriteData());
 	}
-	public void insertFrameInformation(VisualDemonstrationInterfacer vdi) {
-
-			ArrayList<String> agents = vdi.getAgents(this.name);
-			//System.out.println(agents.size());
-			int levelCount = vdi.getLevelCount(this.name);
-			int playthroughCount = vdi.getPlaythroughCount(this.name);
-
-			for(Mechanic mech: mechanics) {
-
-				// keeps track of avg frames by agent-level 
-				HashMap<String, int[]> frames = new HashMap<String, int[]>();
-
-
-				for (String agent : agents) {
-					int[] framesForAgent = new int[levelCount];
-					for(int i = 0; i < levelCount; i++) {
-						try {
-							framesForAgent[i] = vdi.mechAgentLevelQuery(mech, agent, i, 1);
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-							framesForAgent[i] = -1;
-						}
-						frames.put(agent, framesForAgent);
-					
-					}
-				
-					mech.setFrames(frames);
-				}
-			}						
-	}
+	
+	// TODO Dont use this object anymore, use a new class for this
+	public void insertFrameInformation(PlaytraceParser pp) {
+		pp.parsePlaytraces();
+//		ArrayList<String> agents = vdi.getAgents(this.name);
+		//System.out.println(agents.size());
+//		int levelCount = vdi.getLevelCount(this.name);
+//		int playthroughCount = vdi.getPlaythroughCount(this.name);
+		
+		for(Mechanic mech: mechanics) {
+	
+			// keeps track of avg frames by agent-level 
+			int frame = pp.queryCriticalSet(mech);
+			
+			mech.setFrame(frame);
+			System.out.println(mech.toString());
+		}
+	}						
+	
 		
 	public void colorizeCriticalPath(List<Mechanic> criticalPath) {
 		if(mechanicVisualization) {

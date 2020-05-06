@@ -146,10 +146,10 @@ public abstract class Game {
 	/***
 	 * All events in the game
 	 */
-	protected ArrayList<GameEvent> firstTimeEvents;
+	public ArrayList<GameEvent> gameEvents;
 	
 	
-	protected ArrayList<GameEvent> currentEvents;
+	public ArrayList<GameEvent> currentEvents;
 	
 
 	/**
@@ -331,7 +331,7 @@ public abstract class Game {
 		charMapping = new HashMap<Character, ArrayList<String>>();
 		terminations = new ArrayList<Termination>();
 		historicEvents = new TreeSet<Event>();
-		firstTimeEvents = new ArrayList<GameEvent>();
+		gameEvents = new ArrayList<GameEvent>();
 		currentEvents = new ArrayList<GameEvent>();
 		timeEffects = new TreeSet<TimeEffect>();
 		spriteCopies = new ArrayList<VGDLSprite>();
@@ -959,7 +959,7 @@ public abstract class Game {
 			
 			storePlayerAction.storeAllPlayerActions(playerAction, VGDLRegistry.GetInstance().getRegisteredSpriteKey(activeAvatarId));
 
-			firstTimeEvents.add(playerAction);
+			gameEvents.add(playerAction);
 		}
 
 		ArrayList<Observation>[][] data = this.getData();
@@ -1046,7 +1046,9 @@ public abstract class Game {
 
 		// Prepare some structures and references for this game.
 		prepareGame(players, randomSeed, -1);
-
+		System.out.println("Length: " + this.gameEvents.size());
+		this.gameEvents.clear();
+		System.out.println("Length: " + this.gameEvents.size());
 		// Play until the game is ended
 		while (!isEnded) {
 			this.gameCycle(); // Execute a game cycle.
@@ -1395,18 +1397,19 @@ public abstract class Game {
 			storeGameSimulationResult.addMechanics(storeInteraction.interactionArray, storePlayerAction.playerActionArray);
 			File f = new File(InteractionStaticData.gameName, InteractionStaticData.agentName + "_" + InteractionStaticData.levelCount + "_" + InteractionStaticData.playthroughCount +
 					"_result.json");
-
-//			storeGameSimulationResult.writeAllInfo(f.toString());
+			// make folder if not exists
+			File d = new File(InteractionStaticData.gameName);
+			if (!d.exists()) {
+				d.mkdir();
+			}
+			storeGameSimulationResult.convertEvents(gameEvents);
+			storeGameSimulationResult.writeAllInfo(f.toString());
 			InteractionStaticData.resultsCounter += 1;
 		}
 		 
 
 		System.out.println("Result (1->win; 0->lose): " + sb1 + sb2 + "timesteps:" + this.getGameTick());
 		
-		for(GameEvent e : this.currentEvents) {
-			System.out.println(e);
-
-		}
 		/* UNCOMMENT LATER
 		ArrayList<SpriteCapture> spritesCaptured = new ArrayList<>();
 		for (int i = 0; i < spriteCopies.size(); i++) {
@@ -1839,7 +1842,6 @@ public abstract class Game {
 	private void executeEffect(Effect ef, VGDLSprite s1, VGDLSprite s2) {
 		// There is a collision. Apply the effect.
 		ef.execute(s1, s2, this);
-		System.out.println(ef.getClass().getName());
 
 		// Affect score:
 		if (ef.applyScore) {
@@ -1888,6 +1890,8 @@ public abstract class Game {
 					rule,
 					sprite1,
 					"nothing");
+			gameEvents.add(interaction);
+
 		} else if (s2 != null){
 			String rule = ef.getClass().getName();
 			String sprite2 = VGDLRegistry.GetInstance().getRegisteredSpriteKey(s2.getType());
@@ -1895,6 +1899,8 @@ public abstract class Game {
 					rule,
 					sprite2,
 					"nothing");
+			gameEvents.add(interaction);
+
 		}
 	}
 
@@ -1922,7 +1928,7 @@ public abstract class Game {
 
 		// add this event to the all events list
 		Interaction newInt = new Interaction(String.valueOf(this.gameTick), ef.getClass().getName(), VGDLRegistry.GetInstance().getRegisteredSpriteKey(s1.getType()), VGDLRegistry.GetInstance().getRegisteredSpriteKey(s2.getType()));
-		firstTimeEvents.add(newInt);
+		gameEvents.add(newInt);
 		currentEvents.add(newInt);
 
 	}

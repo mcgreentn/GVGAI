@@ -16,7 +16,7 @@ public class Mechanic {
 	private AtDelfiGraph graph;
 	
 	private HashMap<String, int[]> frames;
-	
+	private int frame;
 	private boolean isTerminal;
 	
 	
@@ -211,17 +211,18 @@ public class Mechanic {
 		mechString += "\n";
 				
 		// all frames
-		mechString += "Frames: ";
-	    Iterator it = frames.entrySet().iterator();
-	    while(it.hasNext()) {
-	        HashMap.Entry pair = (HashMap.Entry)it.next();
-	        mechString += "\n";
-	        mechString += pair.getKey() + ": [";
-	        for (int i : (int[]) pair.getValue()) {
-	        	mechString += i + ", ";
-	        }
-	        mechString += "]\n";
-	    }		
+		mechString += "Frame: " + this.frame;
+		mechString += "\n";
+//	    Iterator it = frames.entrySet().iterator();
+//	    while(it.hasNext()) {
+//	        HashMap.Entry pair = (HashMap.Entry)it.next();
+//	        mechString += "\n";
+//	        mechString += pair.getKey() + ": [";
+//	        for (int i : (int[]) pair.getValue()) {
+//	        	mechString += i + ", ";
+//	        }
+//	        mechString += "]\n";
+//	    }		
 		return mechString;
 	}
 	
@@ -231,6 +232,36 @@ public class Mechanic {
 		} else {
 			return false;
 		}
+	}
+	public boolean equals(Mechanic other) {
+		return other.toPartialString().equals(this.toPartialString());
+	}
+	
+	public String toPartialString() {
+		String mechString = "";
+		
+		// all sprites
+		mechString += "Sprites: ";
+		for (Node sprite : sprites) {
+			mechString += sprite.getName() + ", ";
+		}
+		mechString += "\n";
+		
+		// all conditions
+		mechString += "Conditions: ";
+		for (Node condition : conditions) {
+			mechString += condition.getName() + ", ";
+		}
+		mechString += "\n";
+		
+		// all actions
+		mechString += "Actions: ";
+		for (Node action : actions) {
+			mechString += action.getName() + ", ";
+		}
+		mechString += "\n";
+				
+		return mechString;
 	}
 
 	/**
@@ -245,6 +276,14 @@ public class Mechanic {
 	 */
 	public void setVisted(boolean visted) {
 		this.visted = visted;
+	}
+
+	public int getFrame() {
+		return frame;
+	}
+
+	public void setFrame(int frame) {
+		this.frame = frame;
 	}
 	
 }

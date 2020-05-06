@@ -68,6 +68,7 @@ public class SingleMCTSPlayer
     {
         if(rewardEquation != null) {
         	m_root.rewardEquation = rewardEquation;
+        } else {
         	m_root.critPath = critPath;
         }
         //Do the search within the available time.

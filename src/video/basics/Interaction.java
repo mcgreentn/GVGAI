@@ -32,11 +32,13 @@ public class Interaction extends GameEvent{
 	
 	public static String interactionName(String interaction)
 	{
-		String reverse = new StringBuilder(interaction).reverse().toString();
-		int index = reverse.indexOf(".");
-		String interactionNameReturn = reverse.substring(0, index);
-		interactionNameReturn = new StringBuilder(interactionNameReturn).reverse().toString();
-		
+		String interactionNameReturn = interaction;
+		if(interaction.contains(".")) {
+			String reverse = new StringBuilder(interaction).reverse().toString();
+			int index = reverse.indexOf(".");
+			interactionNameReturn = reverse.substring(0, index);
+			interactionNameReturn = new StringBuilder(interactionNameReturn).reverse().toString();
+		}
 		return interactionNameReturn;
 	}
 	

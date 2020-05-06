@@ -109,8 +109,10 @@ public class ArcadeMachine {
     		}
     		
     		// Warm the game up.
+    		System.out.println("Length: " + toPlay.gameEvents.size());
     		ArcadeMachine.warmUp(toPlay, CompetitionParameters.WARMUP_TIME);
-
+    		
+    		
     		// Create the players.
     		String[] names = agentNames.split(" ");
     		int no_players = toPlay.no_players;
@@ -171,6 +173,9 @@ public class ArcadeMachine {
     		}
 
     		// Then, play the game.
+    		System.out.println("Length: " + toPlay.gameEvents.size());
+    		toPlay.gameEvents.clear();
+    		System.out.println("Length: " + toPlay.gameEvents.size());
     		double[] score;
     		if (visuals)
     			score = toPlay.playGame(players, randomSeed, anyHuman, playerID);
@@ -211,7 +216,11 @@ public class ArcadeMachine {
     		}
     		
     		// Warm the game up.
+    		System.out.println("Length: " + toPlay.gameEvents.size());
     		ArcadeMachine.warmUp(toPlay, CompetitionParameters.WARMUP_TIME);
+    		System.out.println("Length: " + toPlay.gameEvents.size());
+    		toPlay.gameEvents.clear();
+    		System.out.println("Length: " + toPlay.gameEvents.size());
 
     		// Create the players.
     		String[] names = agentNames.split(" ");

@@ -22,7 +22,7 @@ public class BestFirstPather extends CriticalPather {
 
 	@Override
 	public List<Mechanic> findCriticalPath(String agent, boolean isWin, int level) {
-List<Mechanic> criticalPath = new ArrayList<Mechanic>();
+		List<Mechanic> criticalPath = new ArrayList<Mechanic>();
 		
 		List<Mechanic> currentChoices = new ArrayList<Mechanic>();
 		
@@ -41,12 +41,12 @@ List<Mechanic> criticalPath = new ArrayList<Mechanic>();
 			// loop thru all the mechs
 			for (Mechanic mech : currentChoices) {
 				// if the mech has an earlier frame then the current earliest, replace 
-				if (!mech.isVisted() && mech.getFrames().get(agent)[level] < earliestFrame 
-//						&& mech.getFrames().get(agent)[level] != -1 
-						&& mech.getFrames().get(agent)[level] != 0
-						&& mech.getFrames().get(agent)[level] >= floor) {
+				if (!mech.isVisted() && mech.getFrame() < earliestFrame 
+//						&& mech.getFrame() != -1 
+						&& mech.getFrame() != 0
+						&& mech.getFrame() >= floor) {
 					earliestMech = mech;
-					earliestFrame = mech.getFrames().get(agent)[level];
+					earliestFrame = mech.getFrame();
 				}
 			}
 			
@@ -63,9 +63,9 @@ List<Mechanic> criticalPath = new ArrayList<Mechanic>();
 //			currentChoices = new ArrayList<Mechanic>();
 			for(Mechanic mech : earliestMech.getOutputs()) {
 				if(!mech.isVisted() 
-//						&& mech.getFrames().get(agent)[level] != -1 
-						&& mech.getFrames().get(agent)[level] != 0
-						&& mech.getFrames().get(agent)[level] >= floor) {
+//						&& mech.getFrame() != -1 
+						&& mech.getFrame() != 0
+						&& mech.getFrame() >= floor) {
 					currentChoices.add(mech);
 				}
 			}

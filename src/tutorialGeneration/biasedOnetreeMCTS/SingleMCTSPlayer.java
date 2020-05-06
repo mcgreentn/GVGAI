@@ -43,7 +43,7 @@ public class SingleMCTSPlayer
 
     public boolean improved;
     public static SingleTreeNode currentNode;
-    public int numIterations = 15000;
+    public static int numIterations = 50;
 
 
     public boolean done = false;
@@ -96,10 +96,12 @@ public class SingleMCTSPlayer
 			ArrayList<String> buffer = new ArrayList<String>();
 
     		while (!a_gameState.isGameOver() && a_gameState.getGameTick() < 1000) {
+//    			long st = System.currentTimeMillis();
+//    			System.out.println(st);
         		SingleTreeNode.deepest = 0;
         		SingleTreeNode.deepestNode = null;
 	    	    init(a_gameState);
-	    		m_root.numIterations = this.numIterations;
+	    		m_root.numIterations = SingleMCTSPlayer.numIterations;
 	    		m_root.critPath = critPath;
 	    	    m_root.mctsSearch(improved);
 	    	    int action = m_root.mostVisitedAction();
@@ -110,7 +112,7 @@ public class SingleMCTSPlayer
 	    	    Types.ACTIONS act = actions[action];
 	    	    a_gameState.advance(act);
 	    	    String oneTick = count + "," + act;
-	    	    ArrayList<GameEvent> events = a_gameState.getFirstTimeEventsHistory();
+	    	    ArrayList<GameEvent> events = a_gameState.getGameEventsHistory();
     			String ev = "";
     			for (GameEvent event : events) {
     				if(Integer.parseInt(event.gameTick) == count-1) {
@@ -122,6 +124,8 @@ public class SingleMCTSPlayer
     			buffer.add(oneTick);
     			
 	    	    count++;
+//	    	    long et = System.currentTimeMillis();
+//	    	    System.out.println("time per move: " + (et-st));
     		}
 	        long endTime = System.currentTimeMillis();
 	        long duration = (endTime - startTime);

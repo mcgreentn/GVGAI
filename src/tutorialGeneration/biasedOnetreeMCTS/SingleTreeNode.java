@@ -22,9 +22,7 @@ public class SingleTreeNode
     public static SingleTreeNode deepestNode;
 
 	private boolean mixmax = false;
-	
-	private boolean verbose = true;
-	
+		
     private final double HUGE_NEGATIVE = -100000.0;
     private final double HUGE_POSITIVE =  100000.0;
     
@@ -53,7 +51,7 @@ public class SingleTreeNode
     public EquationNode rewardEquation;
     public int num_actions;
     Types.ACTIONS[] actions;
-    public int ROLLOUT_DEPTH = 50;
+    public static int ROLLOUT_DEPTH = 10;
     public int bonus_count = 0;
     
     public double K = Math.sqrt(2);
@@ -149,7 +147,7 @@ public class SingleTreeNode
 
         SingleTreeNode cur = this;
 
-        while (!state.isGameOver() && cur.m_depth < ROLLOUT_DEPTH)
+        while (!state.isGameOver() && cur.m_depth < SingleTreeNode.ROLLOUT_DEPTH)
         {
             if (cur.notFullyExpanded()) {
                 return cur.expand(state);
@@ -180,7 +178,7 @@ public class SingleTreeNode
 
         //Roll the state
         state.advance(actions[bestAction]);
-        ArrayList<GameEvent> interactions = state.getFirstTimeEventsHistory();
+        ArrayList<GameEvent> interactions = state.getGameEventsHistory();
 
         // add any interactions that occurred during this event
         SingleTreeNode tn = new SingleTreeNode(this.rootNode, this, bestAction, this.m_rnd, num_actions, actions, interactions);
@@ -248,7 +246,7 @@ public class SingleTreeNode
         if(improved) {
         	// for a fixed bonus 
         	if (this.rootNode.rewardEquation == null)
-        		delta += getCritPathBonus(ogGameTick, state.getFirstTimeEventsHistory());
+        		delta += getCritPathBonus(ogGameTick, state.getGameEventsHistory());
         	else 
         		delta = evaluateRewardEquation(ogGameTick, state);
         }
@@ -282,7 +280,7 @@ public class SingleTreeNode
     
     public double evaluateRewardEquation(int ogGameTick, StateObservation state) {
     	double value = 0.0;
-    	Object[] interactionArray = state.getFirstTimeEventsHistory().toArray();
+    	Object[] interactionArray = state.getGameEventsHistory().toArray();
     	
     	HashMap mechanicMap = new HashMap<String, Integer>();
     	for(GameEvent event : this.critPath) {
@@ -308,57 +306,6 @@ public class SingleTreeNode
     }
     public double getCritPathBonus(int ogGameTick, ArrayList<GameEvent> interactions) {
     	
-//    	ArrayList<GameEvent> critPath = new ArrayList<GameEvent>();
-    	// Aliens
-//    	critPath.add(new PlayerAction("ACTION_USE"));
-//    	critPath.add(new Interaction("KillBoth", "base", "sam"));
-//    	critPath.add(new Interaction("KillSprite", "alienBlue", "sam"));
-    	
-    	// Zelda
-//    	critPath.add(new PlayerAction("ACTION_USE"));
-//    	critPath.add(new Interaction("KillSprite", "monsterQuick", "sword"));
-//    	critPath.add(new Interaction("KillSprite", "monsterNormal", "sword"));
-//    	critPath.add(new Interaction("KillSprite", "monsterSlow", "sword"));
-//    	critPath.add(new Interaction("TransformTo", "nokey",  "key"));
-//    	critPath.add(new Interaction("KillSprite", "goal", "withkey"));
-//    	int indexFloor = 0;
-    	
-    	// Solarfox
-//    	critPath.add(new Interaction("KillSprite","blib","avatar"));
-    	
-    	// SurviveZombies
-//    	critPath.add(new Interaction("SubtractHealthPoints", "avatar", "zombie"));
-//    	critPath.add(new Interaction("KillSprite", "avatar", "zombie"));
-//    	critPath.add(new Interaction("StepBack", "avatar", "wall"));
-//    	critPath.add(new Interaction("AddHealthPoints", "avatar", "honey"));
-    	
-    	// RealPortals
-//    	critPath.add(new PlayerAction("ACTION_USE"));
-//    	critPath.add(new Interaction("TransformTo", "avatarIn", "weaponToggle1"));
-//    	critPath.add(new Interaction("TransformTo", "avatarOut", "weaponToggle2"));
-//    	critPath.add(new Interaction("TransformTo", "wall", "missileOut"));
-//    	critPath.add(new Interaction("TransformTo", "wall", "missileIn"));
-//    	critPath.add(new Interaction("TeleportToExit","avatarIn","portalentry"));
-//    	critPath.add(new Interaction("TeleportToExit","avatarOut","portalentry"));
-//    	critPath.add(new Interaction("StepBack","avatarOut","portalExit"));
-//    	critPath.add(new Interaction("StepBack","avatarIn","portalExit"));
-//    	critPath.add(new Interaction("KillSprite", "key", "avatarIn"));
-//    	critPath.add(new Interaction("KillSprite", "key", "avatarOut"));
-//    	critPath.add(new Interaction("KillIfOtherHasMore", "lock", "avatarOut"));
-//    	critPath.add(new Interaction("KillIfOtherHasMore", "lock", "avatarIn"));
-//    	critPath.add(new Interaction("KillSprite", "goal", "avatarOut"));
-//    	critPath.add(new Interaction("KillSprite", "goal", "avatarIn"));
-
-    	
-    	// Sokoban
-//    	critPath.add(new Interaction("BounceForward", "box", "avatar"));
-//    	critPath.add(new Interaction("KillSprite", "box", "hole"));
-    	
-    	// Plants
-//    	critPath.add(new PlayerAction("ACTION_USE"));
-//    	critPath.add(new Interaction("TransformTo", "shovel", "marsh"));
-//    	critPath.add(new Interaction("TransformTo", "plant", "axe"));
-    	
     	// one to one mapping to critPath
     	int[] mechCounter = new int[critPath.size()];
     	
@@ -366,7 +313,6 @@ public class SingleTreeNode
     	for(int i = 0; i < critPath.size(); i++) {
     		for(int j = 0; j < interactionArray.length; j++) {
     			GameEvent interaction = (GameEvent) interactionArray[j];
-    			
     			if(critPath.get(i).equals(interaction)) {
     				mechCounter[i]++;
     				if(Integer.parseInt(interaction.gameTick) >= ogGameTick-1) {
@@ -375,9 +321,9 @@ public class SingleTreeNode
 //    					if(Integer.parseInt(interaction.gameTick) == rootNode.rootState.getGameTick() + 1) {
 //    						bonus+= 10000;
 //    					}
-    					if(mechCounter[i] < 100) {	
+    					if(mechCounter[i] < 100) {	    			
     						// regular bonus if there is no reward equation
-    						if (this.rootNode.rewardEquation != null)
+    						if (this.rootNode.rewardEquation == null)
     							bonus += BONUS  * ((1 - BONUS_DECAY) / mechCounter[i]) * (1.0 / (float)(Math.pow(1.1, Integer.parseInt(interaction.gameTick) - (ogGameTick))));
     					}
 //    					System.out.println(interaction.toString() + " : " + interaction.gameTick);

@@ -49,6 +49,9 @@ public class AtDelfi {
 	private String levelFile;
 	
 	private VisualDemonstrationInterfacer vdi;
+	private PlaytraceParser pp;
+	
+	private List<Mechanic> criticalPath;
 	
 	public String path;
 		
@@ -88,6 +91,7 @@ public class AtDelfi {
 		
 		try {
 			this.vdi = new VisualDemonstrationInterfacer(this.gameName, false);
+			this.pp = new PlaytraceParser(this.gameName);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -128,24 +132,20 @@ public class AtDelfi {
 		this.gameGraph = new AtDelfiGraph(gd, sl, ga, la, this.gameName);
 		Graph graph = this.gameGraph.build();
 		changeGraphTitle(graph);
-//		this.gameGraph.insertFrameInformation(vdi);
-		
+		if(this.visualizeCriticalPath)
+			this.gameGraph.insertFrameInformation(pp);
+
 		if(gameGraph.isMechanicVisualization()) {
 			gameGraph.visualizeMechanicGraph(agent, level);
-			if(visualizeCriticalPath) {
-				CriticalPather cp = new BestFirstPather(gameGraph);
-				criticalPath(cp, agent, true, level);
-			}
+			
 		}
 		if(gameGraph.isNodeVisualization()) {
 			gameGraph.visualizeNodeGraph();
 		}
+		CriticalPather cp = new BestFirstPather(gameGraph);
+		this.setCriticalPath(criticalPath(cp, agent, true, level));
 	}
 	
-	public void insertFrameInfo() {
-		this.gameGraph.insertFrameInformation(vdi);
-	}
-
 	public void testPlayGames() {
 		ArrayList<BunchOfGames> bogs = new ArrayList<>();
 		levelCount = 1;
@@ -244,6 +244,9 @@ public class AtDelfi {
 			
 			for(int i = 0; i < mech.getSprites().size(); i++) {
 				jsonMech.put("sprite" + (i+1), mech.getSprites().get(i).getName());
+				if(mech.getReadibleAction().equals("Spawn"))
+					break;
+
 			}
 			
 			jsonMechArray.add(jsonMech);
@@ -277,6 +280,12 @@ public class AtDelfi {
 	 */
 	public void setGameGraph(AtDelfiGraph gameGraph) {
 		this.gameGraph = gameGraph;
+	}
+	public List<Mechanic> getCriticalPath() {
+		return criticalPath;
+	}
+	public void setCriticalPath(List<Mechanic> criticalPath) {
+		this.criticalPath = criticalPath;
 	}
 	
 	

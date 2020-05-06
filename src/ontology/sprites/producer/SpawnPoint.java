@@ -10,6 +10,7 @@ import core.game.Game;
 import ontology.Types;
 import tools.Direction;
 import tools.Vector2d;
+import video.basics.Interaction;
 
 /**
  * Created with IntelliJ IDEA.
@@ -83,6 +84,13 @@ public class SpawnPoint extends SpriteProducer
                 //If no orientation given, we set the one from the spawner.
                 else if (newSprite.orientation.equals(Types.DNONE))
                     newSprite.orientation = this.orientation.copy();
+                
+                Interaction interaction = new Interaction(
+            		String.valueOf(game.getGameTick()),
+            		"Spawn",
+            		VGDLRegistry.GetInstance().getRegisteredSpriteKey(this.getType()),
+            		"");
+                game.gameEvents.add(interaction);
             }
         }
 

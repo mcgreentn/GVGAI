@@ -55,7 +55,9 @@ public class Agent extends AbstractPlayer {
         mctsPlayer = getPlayer(so, elapsedTimer);
         if (Agent._rewardEquation != null) {
         	mctsPlayer.rewardEquation = Agent._rewardEquation;
+        } else {
         	mctsPlayer.critPath = (ArrayList<GameEvent>) Agent._critPath;
+
         }
         
     }
