@@ -6,6 +6,7 @@ import java.io.IOException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+
 import video.basics.Interaction;
 
 public class StoreInteraction {
@@ -14,16 +15,21 @@ public class StoreInteraction {
 	public StoreInteraction()
 	{
 		interactionArray = new JSONArray();
+
 	}
 	
 	public JSONObject storeInteraction(Interaction interaction)
 	{
 		JSONObject interactionObject = new JSONObject();
-		interactionObject.put("tick", interaction.gameTick);
-		interactionObject.put("interaction", interaction.rule);
-		interactionObject.put("sprite1", interaction.sprite1);
-		interactionObject.put("sprite2", interaction.sprite2);
-		interactionObject.put("pairInteractionTick", interaction.pairInteractionTick);
+		try {
+			interactionObject.put("tick", interaction.gameTick);
+			interactionObject.put("interaction", interaction.rule);
+			interactionObject.put("sprite1", interaction.sprite1);
+			interactionObject.put("sprite2", interaction.sprite2);
+			interactionObject.put("pairInteractionTick", interaction.pairInteractionTick);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 		
 		return interactionObject;
 	}
@@ -31,7 +37,11 @@ public class StoreInteraction {
 	public void storeAllInteraction(Interaction interaction)
 	{
 		JSONObject interactionObj = storeInteraction(interaction);
-		interactionArray.add(interactionObj);
+		try {
+			interactionArray.add(interactionObj);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void writeInteractionJSONFile()
@@ -55,7 +65,7 @@ public class StoreInteraction {
 			for(Object obj : interactionArray) {
 				file.write(((JSONObject)obj).toString());
 				if(i < interactionArray.size()-1) {
-					file.write("\n");
+					file.write(",\n");
 					i++;
 				}
 			}

@@ -63,7 +63,7 @@ public class StoreGameSimulationResult
 			int i = 0;
 			for(Object obj : eventArray) {
 				file.write(((JSONObject)obj).toString());
-				if(i < interactions.size()-1) {
+				if(i < eventArray.size()-1) {
 					file.write(",\n");
 					i++;
 				}

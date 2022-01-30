@@ -10,6 +10,7 @@ import core.game.Game;
 import ontology.Types;
 import tools.Utils;
 import tools.Vector2d;
+import video.basics.Interaction;
 
 /**
  * Created with IntelliJ IDEA.
@@ -92,7 +93,14 @@ public class FlakAvatar extends HorizontalAvatar
             if(added != null){ //singleton sprites could not add anything here.
                 reduceAmmo();
                 added.setFromAvatar(true);
+                Interaction interaction = new Interaction(
+                		String.valueOf(game.getGameTick()),
+                		"Spawn",
+                		"avatar",
+                		VGDLRegistry.GetInstance().getRegisteredSpriteKey(added.getType()));
+                game.gameEvents.add(interaction);
             }
+            
         }
     }
 

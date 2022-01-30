@@ -89,7 +89,7 @@ public class SpawnPoint extends SpriteProducer
             		String.valueOf(game.getGameTick()),
             		"Spawn",
             		VGDLRegistry.GetInstance().getRegisteredSpriteKey(this.getType()),
-            		"");
+            		VGDLRegistry.GetInstance().getRegisteredSpriteKey(newSprite.getType()));
                 game.gameEvents.add(interaction);
             }
         }

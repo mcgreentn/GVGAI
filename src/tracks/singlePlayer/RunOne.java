@@ -12,8 +12,7 @@ import tracks.ArcadeMachine;
 import video.constants.InteractionStaticData;
 
 /**
- * Created with IntelliJ IDEA. User: Diego Date: 04/10/13 Time: 16:29 This is a
- * Java port from Tom Schaul's VGDL - https://github.com/schaul/py-vgdl
+ * Author: Michael Green
  */
 public class RunOne {
 
@@ -27,15 +26,22 @@ public class RunOne {
 		String[] agents = RunOne.generateAgents();
 		
 		//Game settings
-		int seed = new Random().nextInt();		
+		// A seed
+		int seed = new Random().nextInt();	
+		// the IDX of the game to play
 		int gameIdx = Integer.parseInt(args[0]);
+		// the index within the agents[] array from which to start playing
 		int agentStart = Integer.parseInt(args[1]);
+		// ???
 		int totalCount = Integer.parseInt(args[2]);
+		// how many playthroughs an individual level should have
 		int playthroughTotal = Integer.parseInt(args[3]);
+		// whether or not to have a display
 		boolean visuals = false;
+		// whether to record all agent actions for replay
 		boolean recordActions = Boolean.parseBoolean(args[4]);
 		
-		runMany(games, agents, agentStart, totalCount, totalCount, totalCount, totalCount, visuals, recordActions);
+		runMany(games, agents, agentStart, gameIdx, totalCount, playthroughTotal, seed, visuals, recordActions);
     }
     
     public static void runMany(String[][] games, String[] agents, int agentStart, int gameIdx, int totalCount, int playthroughTotal, int seed, boolean visuals, boolean recordActions) {
@@ -43,6 +49,8 @@ public class RunOne {
 		String game = games[gameIdx][0];
 		InteractionStaticData.gameName = gameName;
 		File gameDir = new File(gameName);
+		
+		System.out.println(gameName);
 		try {
 			if(!gameDir.exists()) {
 				gameDir.mkdir();
@@ -52,24 +60,31 @@ public class RunOne {
 			e1.printStackTrace();
 		}
     	for(int k = 0; k < totalCount; k++) {
-    		
-    		String agent = agents[agentStart * totalCount + k];
-    		System.out.println(agent);
-    		InteractionStaticData.agentName = agent;
-    		for (int j = 0; j < 5; j++) {
-    			String level = game.replace(gameName, gameName + "_lvl" + j);
-    			for(int i = 0; i < playthroughTotal; i++) {
-    				InteractionStaticData.playthroughCount = "" + i;
-    				InteractionStaticData.levelCount = "" + j;
-    				String recordActionsFile = agent + "_lvl"
-    						+ j + "_playthrough" + i + "_" + seed + ".txt";
-    				try {
-    				ArcadeMachine.runOneGame(game, level, visuals, agent, recordActionsFile, seed, 0);
-    				}
-    				catch(Exception e) {
-    					System.err.println("Failed for the following reason:\n" + e);
-    				}
-    			}
+    		if (agents.length - 1 > agentStart * totalCount + k) {
+	    		String agent = agents[agentStart * totalCount + k];
+	    		System.out.println(agent);
+	    		InteractionStaticData.agentName = agent;
+	    		for (int j = 0; j < 1; j++) {
+	    			String level = game.replace(gameName, gameName + "_lvl" + j);
+	    			for(int i = 0; i < playthroughTotal; i++) {
+	    				InteractionStaticData.playthroughCount = "" + i;
+	    				InteractionStaticData.levelCount = "" + j;
+	    				String recordActionsFile = null;
+	    				if (recordActions) {
+		    				recordActionsFile = agent + "_lvl"
+		    						+ j + "_playthrough" + i + "_" + seed + ".txt";
+	    				}
+	    				try {
+	    				ArcadeMachine.runOneGame(game, level, visuals, agent, recordActionsFile, seed, 0);
+	    				}
+	    				catch(Exception e) {
+	    					System.err.println("Failed for the following reason:\n" + e);
+	    				}
+	//    				System.out.println("Agent: " + agent + ", level: " + j + ", playthrough: " + i);
+	    			}
+	    		}
+    		} else {
+    			System.out.println("Over Agent size. Skipping!");
     		}
     	}
     }

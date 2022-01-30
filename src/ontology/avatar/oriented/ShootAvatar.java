@@ -12,6 +12,7 @@ import ontology.Types;
 import tools.Direction;
 import tools.Utils;
 import tools.Vector2d;
+import video.basics.Interaction;
 
 /**
  * Created with IntelliJ IDEA.
@@ -98,6 +99,13 @@ public class ShootAvatar extends OrientedAvatar
                 newOne.orientation = new Direction(dir.x, dir.y);
             reduceAmmo(idx);
             newOne.setFromAvatar(true);
+            
+            Interaction interaction = new Interaction(
+            		String.valueOf(game.getGameTick()),
+            		"Spawn",
+            		"avatar",
+            		VGDLRegistry.GetInstance().getRegisteredSpriteKey(newOne.getType()));
+            game.gameEvents.add(interaction);
         }
     }
 
